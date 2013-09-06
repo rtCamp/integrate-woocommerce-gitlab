@@ -32,12 +32,19 @@ if(!class_exists('rtWooGitlab')) {
 		function gitlabSetup($orderID, $orderMeta) {
 
 			global $rtGitlabclient;
-
-			$project_id = get_post_meta($orderID, '_rtwoogl_project', true);
-			if(empty($project_id))
+			$order = new WC_Order($orderID);
+			if(empty($order))
 				return;
 			
-			$projectDetails = $rtGitlabclient->getProjectDetails($project_id);
+			$createUser = false;
+			foreach ($order->get_items() as $product) {
+				$project_id = get_post_meta($product['product_id'], '_rtwoogl_project', true);
+				if(!empty($project_id))
+					$createUser = true;
+			}
+			
+			if(!$createUser)
+				return;
 
 			// Create Gitlab User
 			$wp_user = get_user_by('id', get_current_user_id());
@@ -65,56 +72,70 @@ if(!class_exists('rtWooGitlab')) {
 					return;
 				}
 			}
+			
+			foreach ($order->get_items() as $product) {
+				$project_id = get_post_meta($product['product_id'], '_rtwoogl_project', true);
+				if(empty($project_id))
+					continue;
 
-			$projectMemberDetails = $rtGitlabclient->addUserToProject($rtWooGLUser->id, $project_id, 10);
-			if(empty($projectMemberDetails)) {
-				$message = 'User could not be added to Project '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$orderID.'. User Details which failed ara as follows:<br />
-					Email: '.$email.'<br />
-					Username: '.$username.'<br />
-					Name: '.$name;
-				$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
-			} else {
-				update_user_meta(get_current_user_id(), '_rtwoogl_user_id', $projectMemberDetails->id);
-				$message = 'New User is added to the project as guest.<br />
-					Project: '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>)<br />
-					User: '.$projectMemberDetails->name.'('.$projectMemberDetails->username.')';
-				$subject = '[rtWooGitlab] New User added to Gitlab Project';
+				$projectDetails = $rtGitlabclient->getProjectDetails($project_id);
+
+				$projectMemberDetails = $rtGitlabclient->addUserToProject($rtWooGLUser->id, $project_id, 10);
+				if(empty($projectMemberDetails)) {
+					$message = 'User could not be added to Project '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$orderID.'. User Details which failed ara as follows:<br />
+						Email: '.$email.'<br />
+						Username: '.$username.'<br />
+						Name: '.$name;
+					$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
+				} else {
+					update_user_meta(get_current_user_id(), '_rtwoogl_user_id', $projectMemberDetails->id);
+					$message = 'New User is added to the project as guest.<br />
+						Project: '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>)<br />
+						User: '.$projectMemberDetails->name.'('.$projectMemberDetails->username.')';
+					$subject = '[rtWooGitlab] New User added to Gitlab Project';
+				}
+				rtWooGLMail($subject, $message);
 			}
-			rtWooGLMail($subject, $message);
 		}
 
 		function removeGitlabUserFromProject($postID) {
-			$project_id = get_post_meta($post->ID, '_rtwoogl_project', true);
-
-			if(empty($project_id))
-				return;
-			
-			$projectDetails = $rtGitlabclient->getProjectDetails($project_id);
-			
-			$wp_userID = get_post_meta($post->ID, '_customer_user', true);
-			$wp_user = get_user_by('id', $wp_userID);
-			$rtwoogl_user_id = get_user_meta($wp_user_id, '_rtwoogl_user_id', true);
-
-			if(empty($rtwoogl_user_id))
-				return;
 
 			global $rtGitlabClient;
-			$response = $rtGitlabClient->removeUserFromProject($rtwoogl_user_id, $project_id);
-			$rtWooGLUser = $rtGitlabClient->getUser($rtwoogl_user_id);
-			if(empty($response)) {
-				$message = 'User could not be removed/alreadey removed from Project '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$postID.'. User Details which failed ara as follows:<br />
-					Email: '.$rtWooGLUser->email.'<br />
-					Username: '.$rtWooGLUser->username.'<br />
-					Name: '.$rtWooGLUser->name;
-				$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
-			} else {
-				$message = 'User is removed successfully from Project '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$postID.'. User Details which failed ara as follows:<br />
-					Email: '.$rtWooGLUser->email.'<br />
-					Username: '.$rtWooGLUser->username.'<br />
-					Name: '.$rtWooGLUser->name;
-				$subject = '[rtWooGitlab] User removed from Gitlab Project';
+			$order = new WC_Order($postID);
+			if(empty($order))
+				return;
+
+			$wp_user_id = get_post_meta($order->id, '_customer_user', true);
+			$rtwoogl_user_id = get_user_meta($wp_user_id, '_rtwoogl_user_id', true);
+
+			foreach ($order->get_items() as $product) {
+				$project_id = get_post_meta($product['product_id'], '_rtwoogl_project', true);
+
+				if(empty($project_id))
+					return;
+
+				$projectDetails = $rtGitlabclient->getProjectDetails($project_id);
+
+				if(empty($rtwoogl_user_id))
+					return;
+
+				$response = $rtGitlabClient->removeUserFromProject($rtwoogl_user_id, $project_id);
+				$rtWooGLUser = $rtGitlabClient->getUser($rtwoogl_user_id);
+				if(empty($response)) {
+					$message = 'User could not be removed/alreadey removed from Project '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$postID.'. User Details which failed ara as follows:<br />
+						Email: '.$rtWooGLUser->email.'<br />
+						Username: '.$rtWooGLUser->username.'<br />
+						Name: '.$rtWooGLUser->name;
+					$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
+				} else {
+					$message = 'User is removed successfully from Project '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$postID.'. User Details which failed ara as follows:<br />
+						Email: '.$rtWooGLUser->email.'<br />
+						Username: '.$rtWooGLUser->username.'<br />
+						Name: '.$rtWooGLUser->name;
+					$subject = '[rtWooGitlab] User removed from Gitlab Project';
+				}
+				rtWooGLMail($subject, $message);
 			}
-			rtWooGLMail($subject, $message);
 		}
 	}
 }
