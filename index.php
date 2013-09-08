@@ -35,6 +35,9 @@ if(!defined('RT_WOO_GL_PATH_ADMIN')) {
 if(!defined('RT_WOO_GL_PATH_LIB')) {
 	define('RT_WOO_GL_PATH_LIB', plugin_dir_path(__FILE__) . 'lib/');
 }
+if(!defined('RT_WOO_GL_PATH_HELPER')) {
+	define('RT_WOO_GL_PATH_HELPER', plugin_dir_path(__FILE__) . 'helper/');
+}
 
 
 function rtwoo_gitlab_include_class_file($dir) {
@@ -57,6 +60,7 @@ function rtwoo_gitlab_include_class_file($dir) {
 function rtwoo_gitlab_init() {
 
 	$rtWooGLIncludePaths = array(
+		RT_WOO_GL_PATH_HELPER,
 		RT_WOO_GL_PATH_LIB,
 		RT_WOO_GL_PATH_ADMIN,
 		RT_WOO_GL_PATH_APP

@@ -17,38 +17,38 @@ if(!class_exists('rtWooGitlab')) {
 			add_action('init', array($this, 'admin_init'), 5);
 			add_action('init', array($this, 'init'), 6);
 		}
-		
+
 		function admin_init() {
 			global $rtWooGLAdmin;
 			$rtWooGLAdmin = new rtWooGLAdmin();
 		}
-		
-		function init() {
-			add_action('woocommerce_checkout_order_processed', array($this, 'gitlabSetup'));
-			add_action('woocommerce_order_status_changed', array($this, 'removeGitlabUserFromProject'));
-			add_action('before_delete_post', array($this, 'removeGitlabUserFromProject'));
-		}
-		
-		function gitlabSetup($orderID, $orderMeta) {
 
-			global $rtGitlabclient;
+		function init() {
+			add_action('woocommerce_checkout_order_processed', array($this, 'addUserOnCheckout'), 10, 2);
+			add_action('woocommerce_order_status_changed', array($this, 'removeUserOnOrderStatusChange'),10, 3);
+			add_action('before_delete_post', array($this, 'removeUserOnOrderDelete'), 10, 1);
+		}
+
+		function addUserOnCheckout($orderID, $orderMeta) {
+
+			global $rtGitlabClient;
 			$order = new WC_Order($orderID);
 			if(empty($order))
 				return;
-			
+
 			$createUser = false;
 			foreach ($order->get_items() as $product) {
 				$project_id = get_post_meta($product['product_id'], '_rtwoogl_project', true);
 				if(!empty($project_id))
 					$createUser = true;
 			}
-			
+
 			if(!$createUser)
 				return;
 
 			// Create Gitlab User
 			$wp_user = get_user_by('id', get_current_user_id());
-			$rtWooGLUser = $rtGitlabclient->searchUser($wp_user->data->user_email);
+			$rtWooGLUser = $rtGitlabClient->searchUser($wp_user->data->user_email);
 			if(empty($rtWooGLUser)) {
 				$email = $wp_user->data->user_email;
 				$password = wp_generate_password();
@@ -60,7 +60,7 @@ if(!class_exists('rtWooGitlab')) {
 				if(!empty($wp_user->data->display_name))
 					$name = $wp_user->data->display_name;
 				else $name = $s;
-				$rtWooGLUser = $rtGitlabclient->createUser($email, $password, $username, $name);
+				$rtWooGLUser = $rtGitlabClient->createUser($email, $password, $username, $name);
 
 				if(empty($rtWooGLUser)) {
 					$message = 'User Creation has failed via rtWooGitlab in Project '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>) for the Order #'.$orderID.'. User Details which failed ara as follows:<br />
@@ -72,20 +72,20 @@ if(!class_exists('rtWooGitlab')) {
 					return;
 				}
 			}
-			
+
 			foreach ($order->get_items() as $product) {
 				$project_id = get_post_meta($product['product_id'], '_rtwoogl_project', true);
 				if(empty($project_id))
 					continue;
 
-				$projectDetails = $rtGitlabclient->getProjectDetails($project_id);
+				$projectDetails = $rtGitlabClient->getProjectDetails($project_id);
 
-				$projectMemberDetails = $rtGitlabclient->addUserToProject($rtWooGLUser->id, $project_id, 10);
+				$projectMemberDetails = $rtGitlabClient->addUserToProject($rtWooGLUser->id, $project_id, 10);
 				if(empty($projectMemberDetails)) {
 					$message = 'User could not be added to Project '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$orderID.'. User Details which failed ara as follows:<br />
-						Email: '.$email.'<br />
-						Username: '.$username.'<br />
-						Name: '.$name;
+						Email: '.$rtWooGLUser->email.'<br />
+						Username: '.$rtWooGLUser->username.'<br />
+						Name: '.$rtWooGLUser->name;
 					$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
 				} else {
 					update_user_meta(get_current_user_id(), '_rtwoogl_user_id', $projectMemberDetails->id);
@@ -98,7 +98,13 @@ if(!class_exists('rtWooGitlab')) {
 			}
 		}
 
-		function removeGitlabUserFromProject($postID) {
+		function removeUserOnOrderStatusChange($orderID, $oldStatus, $newStatus) {
+			if($newStatus === 'refunded') {
+				$this->removeUserOnOrderDelete($orderID);
+			}
+		}
+
+		function removeUserOnOrderDelete($postID) {
 
 			global $rtGitlabClient;
 			$order = new WC_Order($postID);
@@ -114,7 +120,7 @@ if(!class_exists('rtWooGitlab')) {
 				if(empty($project_id))
 					return;
 
-				$projectDetails = $rtGitlabclient->getProjectDetails($project_id);
+				$projectDetails = $rtGitlabClient->getProjectDetails($project_id);
 
 				if(empty($rtwoogl_user_id))
 					return;

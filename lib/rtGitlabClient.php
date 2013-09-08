@@ -41,29 +41,29 @@ if(!class_exists('rtGitlabClient')) {
 
 			return $projects;
 		}
-		
+
 		function getProjectDetails($projectID) {
 			if(empty($this->endPoint))
 				return false;
-			
+
 			$response = \Httpful\Request::get($this->endPoint.'/projects/'.$projectID)->addHeader('PRIVATE-TOKEN', $this->privateToken)->send();
-			
+
 			if( isset($response->body->message) || !isset($response->body->id) )
 				return false;
-			
-			$response->body;
+
+			return $response->body;
 		}
-		
+
 		function getUser($id) {
 			if(empty($this->endPoint))
 				return false;
-			
+
 			$response = \Httpful\Request::get($this->endPoint.'/users/'.$id)->addHeader('PRIVATE-TOKEN', $this->privateToken)->send();
-			
+
 			if( isset($response->body->message) || !isset($response->body->id) )
 				return false;
-			
-			$response->body;
+
+			return $response->body;
 		}
 
 		function createUser($email, $password, $username, $name) {
@@ -77,29 +77,29 @@ if(!class_exists('rtGitlabClient')) {
 				'name' => $name,
 				'provider' => 'rtwoo_gitlab'
 			);
-			$response = \Httpful\Request::post($this->endPoint.'/users')->addHeader('PRIVATE-TOKEN', $this->privateToken)->body($args)->send();
+			$response = \Httpful\Request::post($this->endPoint.'/users')->addHeader('PRIVATE-TOKEN', $this->privateToken)->body(json_encode($args))->sendsJson()->send();
 
 			if( isset($response->body->message) || !isset($response->body->id) )
 				return false;
 
-			$response->body;
+			return $response->body;
 		}
 
 		function addUserToProject($userID, $projectID, $accessLevel) {
 			if(empty($this->endPoint))
 				return false;
-			
+
 			$args = array(
 				'id' => $projectID,
 				'user_id' => $userID,
 				'access_level' => $accessLevel
 			);
-			$response = \Httpful\Request::post($this->endPoint.'/projects/'.$projectID.'/members')->addHeader('PRIVATE-TOKEN', $this->privateToken)->body($args)->send();
-			
+			$response = \Httpful\Request::post($this->endPoint.'/projects/'.$projectID.'/members')->addHeader('PRIVATE-TOKEN', $this->privateToken)->body(json_encode($args))->sendsJson()->send();
+
 			if( isset($response->body->message) || !isset($response->body->id) )
 				return false;
-			
-			$response->body;
+
+			return $response->body;
 		}
 
 		function removeUserFromProject($userID, $projectID) {
@@ -110,12 +110,12 @@ if(!class_exists('rtGitlabClient')) {
 				'id' => $projectID,
 				'user_id' => $userID
 			);
-			$response = \Httpful\Request::delete($this->endPoint.'/projects/'.$projectID.'/members/'.$userID)->addHeader('PRIVATE-TOKEN', $this->privateToken)->body($args)->send();
-			
+			$response = \Httpful\Request::delete($this->endPoint.'/projects/'.$projectID.'/members/'.$userID)->addHeader('PRIVATE-TOKEN', $this->privateToken)->body(json_encode($args))->sendsJson()->send();
+
 			if( isset($response->body->message) || !isset($response->body->id) )
 				return false;
-			
-			$response->body;
+
+			return $response->body;
 		}
 
 		function searchUser($email) {
