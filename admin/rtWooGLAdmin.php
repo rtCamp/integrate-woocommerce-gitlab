@@ -13,12 +13,12 @@
 if(!class_exists('rtWooGLAdmin')) {
 	class rtWooGLAdmin {
 		public function __construct() {
-			
+
 			$this->initGitlabClient();
 			$this->settings();
 			$this->addProductMetaBox();
 		}
-		
+
 		function initGitlabClient() {
 			global $rtGitlabClient;
 			$endPoint = get_option('rtwoogl_api_endpoint', '');
@@ -30,7 +30,7 @@ if(!class_exists('rtWooGLAdmin')) {
 			global $rtWooGLSettings;
 			$rtWooGLSettings = new rtWooGLSettings();
 		}
-		
+
 		function addProductMetaBox() {
 			// WP 3.0+
 			add_action( 'add_meta_boxes', array($this, 'addGitlabProjectMeta'));
@@ -39,7 +39,7 @@ if(!class_exists('rtWooGLAdmin')) {
 			/* Do something with the data entered */
 			add_action( 'save_post', array($this, 'saveGitlabProjectMeta') );
 		}
-		
+
 		function addGitlabProjectMeta() {
 			add_meta_box( 'rtwoogl_project_mapping', __("Gitlab Project","rtPanel"), array($this,'formGitlabProjectMeta'), 'product', 'side', 'high');
 		}

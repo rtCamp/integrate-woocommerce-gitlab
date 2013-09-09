@@ -122,12 +122,21 @@ if(!class_exists('rtGitlabClient')) {
 			if(empty($this->endPoint))
 				return false;
 
-			$response = \Httpful\Request::get($this->endPoint.'users/search?email='.$email)->addHeader('PRIVATE-TOKEN', $this->privateToken)->send();
-
-			if( isset($response->body->message) || !isset($response->body->id) )
-				return false;
-
-			return $response->body;
+			$page = 1;
+			while(1) {
+				$response = \Httpful\Request::get($this->endPoint.'users/?page='.$page)->addHeader('PRIVATE-TOKEN', $this->privateToken)->send();
+				if(!empty($response->body) && is_array($response->body)) {
+					foreach ($response->body as $user) {
+						if($user->email == $email) {
+							return $user;
+						}
+					}
+				} else {
+					break;
+				}
+				$page++;
+			}
+			return false;
 		}
 	}
 }
