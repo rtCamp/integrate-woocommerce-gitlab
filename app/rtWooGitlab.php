@@ -137,6 +137,8 @@ if(!class_exists('rtWooGitlab')) {
 			}
 			update_user_meta(get_current_user_id(), '_rtwoogl_user_id', $rtWooGLUser->id);
 
+			$accessLevel = get_option('rtwoogl_default_access', '20');
+
 			foreach ($order->get_items() as $product) {
 				$project_id = get_post_meta($product['product_id'], '_rtwoogl_project', true);
 				if(empty($project_id))
@@ -144,7 +146,7 @@ if(!class_exists('rtWooGitlab')) {
 
 				$projectDetails = $rtGitlabClient->getProjectDetails($project_id);
 
-				$projectMemberDetails = $rtGitlabClient->addUserToProject($rtWooGLUser->id, $project_id, 10);
+				$projectMemberDetails = $rtGitlabClient->addUserToProject($rtWooGLUser->id, $project_id, $accessLevel);
 				if(empty($projectMemberDetails)) {
 					$message = 'User could not be added to Project '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$orderID.'. User Details which failed ara as follows:<br />
 						Email: '.$rtWooGLUser->email.'<br />
@@ -152,7 +154,7 @@ if(!class_exists('rtWooGitlab')) {
 						Name: '.$rtWooGLUser->name;
 					$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
 				} else {
-					$message = 'New User is added to the project as guest.<br />
+					$message = 'New User is added to the project.<br />
 						Project: '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>)<br />
 						User: '.$projectMemberDetails->name.'('.$projectMemberDetails->username.')';
 					$subject = '[rtWooGitlab] New User added to Gitlab Project';

@@ -14,9 +14,9 @@ if(!class_exists('rtWooGLSettings')) {
 	class rtWooGLSettings {
 		public function __construct() {
 			$this->initSettings();
-			
+
 			add_action('woocommerce_update_options_rtwoogl', array($this, 'updateWooSettings'));
-			
+
 			$this->wooSettingsInject();
 		}
 
@@ -33,6 +33,8 @@ if(!class_exists('rtWooGLSettings')) {
 					'title' => __('Gitlab Endpoint', 'rtwoo-gitlab'),
 					'desc' => __('Gitlab API Endpoint to Access the Git Server', 'rtwoo-gitlab'),
 					'id' => 'rtwoogl_api_endpoint',
+					'css' => 'min-width:250px;',
+					'desc_tip'	=>  true,
 					'type' => 'text',
 					'default' => ''
 				),
@@ -40,6 +42,8 @@ if(!class_exists('rtWooGLSettings')) {
 					'title' => __('Gitlab Private Token', 'rtwoo-gitlab'),
 					'desc' => __('Gitlab API Private Token', 'rtwoo-gitlab'),
 					'id' => 'rtwoogl_private_token',
+					'css' => 'min-width:250px;',
+					'desc_tip'	=>  true,
 					'type' => 'text',
 					'default' => ''
 				),
@@ -47,23 +51,41 @@ if(!class_exists('rtWooGLSettings')) {
 					'title' => __('Gitlab Forgot Password Link', 'rtwoo-gitlab'),
 					'desc' => __('User will be given this link; in case he/she has forgotten the Gitlab login password.', 'rtwoo-gitlab'),
 					'id' => 'rtwoogl_forgot_password_link',
+					'css' => 'min-width:250px;',
+					'desc_tip'	=>  true,
 					'type' => 'text',
 					'default' => ''
+				),
+				array(
+					'title' => __('Gitlab Default Access', 'rtwoo-gitlab'),
+					'desc' => __('Default Access Level for the Gitlab Users that will be created for the projects.', 'rtwoo-gitlab'),
+					'id' => 'rtwoogl_default_access',
+					'type' 		=> 'select',
+					'class'		=> 'chosen_select',
+					'css' 		=> 'min-width:250px;',
+					'default'	=> '20',
+					'desc_tip'	=>  true,
+					'options' => array(
+						'10'  	=> __( 'Guest', 'rtwoo-gitlab' ),
+						'20' => __( 'Reporter', 'rtwoo-gitlab' ),
+						'30'  => __( 'Developer', 'rtwoo-gitlab' ),
+						'40'  => __( 'Master', 'rtwoo-gitlab' ),
+					)
 				),
 				array( 'type' => 'sectionend', 'id' => 'rtwoogl_general')
 			);
 		}
-		
+
 		function updateWooSettings() {
 			global $woocommerce_settings;
 			woocommerce_update_options($woocommerce_settings['rtwoogl']);
 		}
-		
+
 		function wooSettingsInject() {
 			add_filter('woocommerce_settings_tabs_array', array($this, 'addWooSettingsTab'));
 			add_action('woocommerce_settings_tabs_rtwoogl', array($this, 'wooSettings'));
 		}
-		
+
 		function addWooSettingsTab($tabs) {
 			$tabs['rtwoogl'] = __('Gitlab', 'rtwoo-gitlab');
 			return $tabs;
