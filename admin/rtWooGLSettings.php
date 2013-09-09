@@ -43,6 +43,13 @@ if(!class_exists('rtWooGLSettings')) {
 					'type' => 'text',
 					'default' => ''
 				),
+				array(
+					'title' => __('Gitlab Forgot Password Link', 'rtwoo-gitlab'),
+					'desc' => __('User will be given this link; in case he/she has forgotten the Gitlab login password.', 'rtwoo-gitlab'),
+					'id' => 'rtwoogl_forgot_password_link',
+					'type' => 'text',
+					'default' => ''
+				),
 				array( 'type' => 'sectionend', 'id' => 'rtwoogl_general')
 			);
 		}
