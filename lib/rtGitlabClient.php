@@ -42,6 +42,18 @@ if(!class_exists('rtGitlabClient')) {
 			return $projects;
 		}
 
+		function testConnection() {
+			if(empty($this->endPoint))
+				return false;
+
+			$response = \Httpful\Request::get($this->endPoint.'projects')->addHeader('PRIVATE-TOKEN', $this->privateToken)->send();
+
+			if( isset($response->body->message) || !isset($response->body->id) )
+				return false;
+
+			return $response->body;
+		}
+
 		function getProjectDetails($projectID) {
 			if(empty($this->endPoint))
 				return false;

@@ -95,6 +95,29 @@ if(!class_exists('rtWooGLSettings')) {
 
 			global $woocommerce_settings;
 			woocommerce_admin_fields($woocommerce_settings['rtwoogl']);
+			?>
+				<div>
+					<a href="#" id="rtwoogl_test_connection" class="button" style="margin-top: 15px;">Test Connection</a>
+				</div>
+				<script>
+					jQuery('#rtwoogl_test_connection').click(function(e) {
+						e.preventDefault();
+						var rtwoogl_loading_file = '<?php echo admin_url ( "/images/loading.gif" ); ?>';
+						var that = this;
+						jQuery(that).parent().append('<img class="tmp-process" src="'+ rtwoogl_loading_file +  '" />');
+						jQuery.post('<?php echo admin_url('admin-ajax.php'); ?>', {
+							action: 'rtwoogl_test_connection',
+							endPoint: jQuery('#rtwoogl_api_endpoint').val().trim(),
+							token: jQuery('#rtwoogl_private_token').val().trim()
+						}, function(data, status, xhr) {
+							jQuery(that).next().remove();
+							data = jQuery.parseJSON(data);
+							if(data.message !== 'undefined')
+								jQuery(that).parent().append('<span>'+data.message+'</span>');
+						});
+					});
+				</script>
+			<?php
 		}
 	}
 }

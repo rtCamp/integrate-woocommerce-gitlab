@@ -17,6 +17,8 @@ if(!class_exists('rtWooGLAdmin')) {
 			$this->initGitlabClient();
 			$this->settings();
 			$this->addProductMetaBox();
+
+			add_action('wp_ajax_rtwoogl_test_connection', array($this,'testConnection'));
 		}
 
 		function initGitlabClient() {
@@ -24,6 +26,36 @@ if(!class_exists('rtWooGLAdmin')) {
 			$endPoint = get_option('rtwoogl_api_endpoint', '');
 			$privateToken = get_option('rtwoogl_private_token', '');
 			$rtGitlabClient = new rtGitlabClient($endPoint, $privateToken);
+		}
+
+		function testConnection() {
+			if(!isset($_POST['endPoint']) || !isset($_POST['token'])) {
+				$response = array('result' => 'error', 'message' => 'Connection Failed. API Endpoint/Token is missing.');
+				echo json_encode($response);
+				die();
+			}
+
+			if(empty($_POST['endPoint']) || empty($_POST['token'])) {
+				$response = array('result' => 'error', 'message' => 'Connection Failed. API Endpoint/Token is blank.');
+				echo json_encode($response);
+				die();
+			}
+
+			$endPoint = $_POST['endPoint'];
+			$token = $_POST['token'];
+
+			$obj = new rtGitlabClient($endPoint, $token);
+			$response = $obj->testConnection();
+
+			if(empty($response)) {
+				$response = array('result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.');
+				echo json_encode($response);
+				die();
+			} else {
+				$response = array('result' => 'success', 'message' => 'Connection Successful.');
+				echo json_encode($response);
+				die();
+			}
 		}
 
 		function settings() {
