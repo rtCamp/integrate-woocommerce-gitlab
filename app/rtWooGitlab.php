@@ -62,7 +62,8 @@ if(!class_exists('rtWooGitlab')) {
 
 			$rtWooGLForgotPasswordLink = get_option('rtwoogl_forgot_password_link', ''); ?>
 
-			<h2><?php _e( 'Gitlab Project Details', 'rtwoo-gitlab' ); ?></h2>
+			<h2><?php _e( 'Source-code Access', 'rtwoo-gitlab' ); ?></h2>
+			<span><?php _e('**You can directly access the source-code via Gitlab.', 'rtwoo-gitlab'); ?></span>
 			<p><strong><?php _e('Username:', 'rtwoo-gitlab'); ?></strong> <?php echo $rtWooGLUser->username; ?></p>
 
 			<?php // Check whether new user or existing user
