@@ -42,6 +42,18 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 			die();
 		}
 
+		/**
+		 * Test Cases
+		 * @assert ( 'http://git.rtcamp.com/api/v3/', 'HkFtzhCuc81LyVWewu18' ) == array( 'result' => 'success', 'message' => 'Connection Successful.' )
+		 * @assert ( '', '' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint/Token is missing.' )
+		 * @assert ( 'fggrg', 'HkFtzhCuc81LyVWewu18' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint URL is invalid.' )
+		 * @assert ( 'http://git.rtcamp.com/api/v3/', 'avdgvdsg' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
+		 * @assert ( 'http://google.com', 'HkFtzhCuc81LyVWewu18' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
+		 * 
+		 * @param type $endPoint
+		 * @param type $token
+		 * @return type $response (Success/Failure)
+		 */
 		function test_connection( $endPoint, $token ) {
 			$flag     = $this->validate_api( $endPoint, $token );
 			$response = false;
