@@ -17,42 +17,42 @@
  * @subpackage index.php
  */
 
-if(!defined('RT_WOO_GL_VERSION')) {
-	define('RT_WOO_GL_VERSION', '1.0.0');
+if ( !defined( 'RT_WOO_GL_VERSION' ) ) {
+	define( 'RT_WOO_GL_VERSION', '1.0.0' );
 }
-if(!defined('RT_WOO_GL_PATH')) {
-	define('RT_WOO_GL_PATH', plugin_dir_path(__FILE__));
+if ( !defined( 'RT_WOO_GL_PATH' ) ) {
+	define( 'RT_WOO_GL_PATH', plugin_dir_path( __FILE__ ) );
 }
-if(!defined('RT_WOO_GL_URL')) {
-	define('RT_WOO_GL_URL', plugin_dir_url(__FILE__));
+if ( !defined( 'RT_WOO_GL_URL' ) ) {
+	define( 'RT_WOO_GL_URL', plugin_dir_url( __FILE__ ) );
 }
-if(!defined('RT_WOO_GL_PATH_APP')) {
-	define('RT_WOO_GL_PATH_APP', plugin_dir_path(__FILE__) . 'app/');
+if ( !defined( 'RT_WOO_GL_PATH_APP' ) ) {
+	define( 'RT_WOO_GL_PATH_APP', plugin_dir_path( __FILE__ ) . 'app/' );
 }
-if(!defined('RT_WOO_GL_PATH_ADMIN')) {
-	define('RT_WOO_GL_PATH_ADMIN', plugin_dir_path(__FILE__) . 'admin/');
+if ( !defined( 'RT_WOO_GL_PATH_ADMIN' ) ) {
+	define( 'RT_WOO_GL_PATH_ADMIN', plugin_dir_path( __FILE__ ) . 'admin/' );
 }
-if(!defined('RT_WOO_GL_PATH_LIB')) {
-	define('RT_WOO_GL_PATH_LIB', plugin_dir_path(__FILE__) . 'lib/');
+if ( !defined( 'RT_WOO_GL_PATH_LIB' ) ) {
+	define( 'RT_WOO_GL_PATH_LIB', plugin_dir_path( __FILE__ ) . 'lib/' );
 }
-if(!defined('RT_WOO_GL_PATH_HELPER')) {
-	define('RT_WOO_GL_PATH_HELPER', plugin_dir_path(__FILE__) . 'helper/');
+if ( !defined( 'RT_WOO_GL_PATH_HELPER' ) ) {
+	define( 'RT_WOO_GL_PATH_HELPER', plugin_dir_path( __FILE__ ) . 'helper/' );
 }
 
 
-function rtwoo_gitlab_include_class_file($dir) {
-	if ($dh = opendir($dir)) {
-		while ($file = readdir($dh)) {
-			if ($file != "." && $file != ".." && $file[0] != '.') {
-				if (is_dir($dir . $file)) {
-					rtwoo_gitlab_include_class_file($dir . $file . '/');
+function rtwoo_gitlab_include_class_file( $dir ) {
+	if ( $dh = opendir( $dir ) ) {
+		while ( $file = readdir( $dh ) ) {
+			if ( $file != '.' && $file != '..' && $file[0] != '.' ) {
+				if ( is_dir( $dir . $file ) ) {
+					rtwoo_gitlab_include_class_file( $dir . $file . '/' );
 				} else {
 //					var_dump($dir . $file);
 					include_once $dir . $file;
 				}
 			}
 		}
-		closedir($dh);
+		closedir( $dh );
 		return 0;
 	}
 }
@@ -63,22 +63,22 @@ function rtwoo_gitlab_init() {
 		RT_WOO_GL_PATH_HELPER,
 		RT_WOO_GL_PATH_LIB,
 		RT_WOO_GL_PATH_ADMIN,
-		RT_WOO_GL_PATH_APP
+		RT_WOO_GL_PATH_APP,
 	);
-	foreach ($rtWooGLIncludePaths as $path) {
-		rtwoo_gitlab_include_class_file($path);
+	foreach ( $rtWooGLIncludePaths as $path ) {
+		rtwoo_gitlab_include_class_file( $path );
 	}
 
 	/**
 	 * Required functions
 	 */
-	if (!function_exists('woothemes_queue_update'))
-	    require_once( 'woo-includes/woo-functions.php' );
+	if ( !function_exists( 'woothemes_queue_update' ) )
+		require_once( 'woo-includes/woo-functions.php' );
 
-	if (is_woocommerce_active()) {
+	if ( is_woocommerce_active() ) {
 		global $rtWooGitlab;
-		$rtWooGitlab = new rtWooGitlab();
+		$rtWooGitlab = new RtWooGitlab();
 	}
 }
-add_action('woocommerce_init', 'rtwoo_gitlab_init');
+add_action( 'woocommerce_init', 'rtwoo_gitlab_init' );
 ?>
