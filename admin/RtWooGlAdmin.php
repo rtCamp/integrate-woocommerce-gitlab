@@ -15,7 +15,7 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 		public $error_message;
 
 		public function __construct() {
-			add_action('admin_enqueue_scripts', array($this, 'load_scripts'));
+			add_action( 'admin_enqueue_scripts', array( $this, 'load_scripts' ) );
 			$this->init_gitlab_client();
 			$this->settings();
 			$this->add_product_metabox();

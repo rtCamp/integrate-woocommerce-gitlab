@@ -1,5 +1,4 @@
 <?php
-
 /*
   Plugin Name: rtwoo-gitlab
   Plugin URI: http://rtcamp.com
@@ -38,12 +37,16 @@ if ( !defined( 'RT_WOO_GL_PATH_LIB' ) ) {
 if ( !defined( 'RT_WOO_GL_PATH_HELPER' ) ) {
 	define( 'RT_WOO_GL_PATH_HELPER', plugin_dir_path( __FILE__ ) . 'helper/' );
 }
+if ( !defined( 'RT_WOO_GL_PATH_TEMPLATES' ) ) {
+	define( 'RT_WOO_GL_PATH_TEMPLATES', plugin_dir_path( __FILE__ ) . 'templates/' );
+}
 
 
 function rtwoo_gitlab_include_class_file( $dir ) {
 	if ( $dh = opendir( $dir ) ) {
 		while ( $file = readdir( $dh ) ) {
-			if ( $file != '.' && $file != '..' && $file[0] != '.' ) {
+			//Testing
+			if ( $file !== '.' && $file !== '..' && $file[0] !== '.' ) {
 				if ( is_dir( $dir . $file ) ) {
 					rtwoo_gitlab_include_class_file( $dir . $file . '/' );
 				} else {
@@ -86,7 +89,7 @@ function rtwoo_gitlab_init() {
 
 	$flag = rtwoo_gitlab_woo_check();
 
-	if($flag) {
+	if ( $flag ) {
 		global $rtWooGitlab;
 		$rtWooGitlab = new RtWooGitlab();
 	}
