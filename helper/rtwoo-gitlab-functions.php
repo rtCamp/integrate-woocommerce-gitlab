@@ -27,4 +27,3 @@ function rtwoogl_get_query_vars( $post, $keys = array() ) {
 	}
 	return $result;
 }
-?>

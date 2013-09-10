@@ -146,4 +146,3 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 		}
 	}
 }
-?>

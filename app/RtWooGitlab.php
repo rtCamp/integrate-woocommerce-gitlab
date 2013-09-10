@@ -217,4 +217,3 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 		}
 	}
 }
-?>

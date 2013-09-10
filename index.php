@@ -47,7 +47,6 @@ function rtwoo_gitlab_include_class_file( $dir ) {
 				if ( is_dir( $dir . $file ) ) {
 					rtwoo_gitlab_include_class_file( $dir . $file . '/' );
 				} else {
-//					var_dump($dir . $file);
 					include_once $dir . $file;
 				}
 			}
@@ -57,8 +56,7 @@ function rtwoo_gitlab_include_class_file( $dir ) {
 	}
 }
 
-function rtwoo_gitlab_init() {
-
+function rtwoo_gitlab_include() {
 	$rtWooGLIncludePaths = array(
 		RT_WOO_GL_PATH_HELPER,
 		RT_WOO_GL_PATH_LIB,
@@ -68,17 +66,29 @@ function rtwoo_gitlab_init() {
 	foreach ( $rtWooGLIncludePaths as $path ) {
 		rtwoo_gitlab_include_class_file( $path );
 	}
+}
 
-	/**
-	 * Required functions
-	 */
-	if ( !function_exists( 'woothemes_queue_update' ) )
+function rtwoo_gitlab_woo_check() {
+	if ( !function_exists( 'woothemes_queue_update' ) ) {
 		require_once( 'woo-includes/woo-functions.php' );
+	}
 
 	if ( is_woocommerce_active() ) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function rtwoo_gitlab_init() {
+
+	rtwoo_gitlab_include();
+
+	$flag = rtwoo_gitlab_woo_check();
+
+	if($flag) {
 		global $rtWooGitlab;
 		$rtWooGitlab = new RtWooGitlab();
 	}
 }
 add_action( 'woocommerce_init', 'rtwoo_gitlab_init' );
-?>

@@ -15,10 +15,17 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 		public $error_message;
 
 		public function __construct() {
+			add_action('admin_enqueue_scripts', array($this, 'load_scripts'));
 			$this->init_gitlab_client();
 			$this->settings();
 			$this->add_product_metabox();
 			add_action( 'wp_ajax_rtwoogl_test_connection', array( $this, 'test_connection_wrapper' ) );
+		}
+		
+		function load_scripts() {
+			wp_enqueue_script( 'rtwoogl_script_admin', RT_WOO_GL_URL . 'assets/javascripts/admin.js', array( 'jquery' ), RT_WOO_GL_VERSION );
+			wp_localize_script( 'rtwoogl_script_admin', 'adminAjaxURL', admin_url( 'admin-ajax.php' ) );
+			wp_localize_script( 'rtwoogl_script_admin', 'rtwoogl_loading_file', admin_url( '/images/loading.gif' ) );
 		}
 
 		function init_gitlab_client() {
@@ -83,7 +90,7 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 			global $rtGitlabClient;
 			$projects   = $rtGitlabClient->get_all_projects();
 			$project_id = get_post_meta( $post->ID, '_rtwoogl_project', true );
-			wp_nonce_field( plugin_basename( __FILE__ ), $post->post_type . '_noncename' ); ?>
+			wp_nonce_field( plugin_basename( __FILE__ ), '_noncename' ); ?>
 				<label for="_rtwoogl_project" class="selectit"><?php _e( 'Gitlab Project', 'rtwoo-gitlab' ); ?></label>
 				<select id="_rtwoogl_project" name="_rtwoogl_project">
 					<option value=""><?php _e( 'N/A', 'rtwoo-gitlab' ); ?></option>
@@ -91,25 +98,19 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 					<option value="<?php echo esc_attr( $project->id ); ?>" <?php echo esc_attr( ( $project_id == $project->id ) ? 'selected="selected"' : '' ); ?>><?php echo esc_attr( $project->name_with_namespace ); ?></option>
 				<?php } ?>
 				</select>
-			<?php }
+		<?php }
 
 		function save_gitlab_project_meta( $post_id ) {
 			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 				return;
 			}
-
-			if ( !isset( $_POST['post_type'] ) || !isset( $_POST[$_POST['post_type'] . '_noncename'] ) ) {
+			extract( rtwoogl_get_query_vars( $_POST, array( '_noncename', 'post_type', '_rtwoogl_project' ) ) );
+			if ( !wp_verify_nonce( $_noncename, plugin_basename( __FILE__ ) ) ) {
 				return;
 			}
-			if ( !wp_verify_nonce( $_POST[$_POST['post_type'] . '_noncename'], plugin_basename( __FILE__ ) ) ) {
-				return;
-			}
-			if ( 'product' == $_POST['post_type'] ) {
-				if ( isset($_POST['_rtwoogl_project'] ) ) {
-					update_post_meta( $post_id, '_rtwoogl_project', $_POST['_rtwoogl_project'] );
-				}
+			if ( 'product' == $post_type && $_rtwoogl_project ) {
+				update_post_meta( $post_id, '_rtwoogl_project', $_rtwoogl_project );
 			}
 		}
 	}
 }
-?>

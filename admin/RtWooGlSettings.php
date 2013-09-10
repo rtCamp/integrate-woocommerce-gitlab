@@ -78,40 +78,23 @@ if ( !class_exists( 'RtWooGlSettings' ) ) {
 			global $woocommerce_settings;
 			woocommerce_update_options( $woocommerce_settings['rtwoogl'] );
 		}
+
 		function woo_settings_inject() {
 			add_filter( 'woocommerce_settings_tabs_array', array( $this, 'add_woo_settings_tab' ) );
 			add_action( 'woocommerce_settings_tabs_rtwoogl', array( $this, 'woo_settings' ) );
 		}
+
 		function add_woo_settings_tab( $tabs ) {
 			$tabs['rtwoogl'] = __( 'Gitlab', 'rtwoo-gitlab' );
 			return $tabs;
 		}
+
 		function woo_settings() {
 			global $woocommerce_settings;
 			woocommerce_admin_fields( $woocommerce_settings['rtwoogl'] );
 			?>
 				<div><a href="#" id="rtwoogl_test_connection" class="button" style="margin-top: 15px;">Test Connection</a></div>
-				<script>
-					jQuery('#rtwoogl_test_connection').click(function(e) {
-						e.preventDefault();
-						var rtwoogl_loading_file = '<?php echo esc_url( admin_url( '/images/loading.gif' ) ); ?>';
-						var that = this;
-						jQuery(that).next().remove();
-						jQuery(that).parent().append('<img class="tmp-process" src="'+ rtwoogl_loading_file +  '" />');
-						jQuery.post('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', {
-							action: 'rtwoogl_test_connection',
-							endPoint: jQuery('#rtwoogl_api_endpoint').val().trim(),
-							token: jQuery('#rtwoogl_private_token').val().trim()
-						}, function(data, status, xhr) {
-							jQuery(that).next().remove();
-							data = jQuery.parseJSON(data);
-							if(data.message !== 'undefined')
-								jQuery(that).parent().append('<span>'+data.message+'</span>');
-						});
-					});
-				</script>
 			<?php
 		}
 	}
 }
-?>
