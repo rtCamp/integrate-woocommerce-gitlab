@@ -3,7 +3,7 @@
   Plugin Name: rtwoo-gitlab
   Plugin URI: http://rtcamp.com
   Description: Reseller Module in Woocommerce
-  Version: 1.0.1
+  Version: 1.0.2
   Author: rtCamp
   Text Domain: rtwoo-gitlab
   Author URI: http://rtcamp.com
@@ -45,7 +45,7 @@ if ( !defined( 'RT_WOO_GL_PATH_TEMPLATES' ) ) {
 function rtwoo_gitlab_include_class_file( $dir ) {
 	if ( $dh = opendir( $dir ) ) {
 		while ( $file = readdir( $dh ) ) {
-			//Testing
+			//Loop
 			if ( $file !== '.' && $file !== '..' && $file[0] !== '.' ) {
 				if ( is_dir( $dir . $file ) ) {
 					rtwoo_gitlab_include_class_file( $dir . $file . '/' );
