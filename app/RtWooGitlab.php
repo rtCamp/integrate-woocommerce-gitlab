@@ -171,7 +171,7 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 			update_user_meta( get_current_user_id(), '_rtwoogl_user_id', $rtWooGLUser->id );
 			$accessLevel = get_option( 'rtwoogl_default_access', '20' );
 			$order = new WC_Order( $orderID );
-			$this->grant_access_for_gitlab( $order, $rtWooGLUser, $accessLevel );
+			$this->grant_access_to_gitlab( $order, $rtWooGLUser, $accessLevel );
 		}
 
 		function remove_user_on_order_status_change( $orderID, $oldStatus, $newStatus ) {
