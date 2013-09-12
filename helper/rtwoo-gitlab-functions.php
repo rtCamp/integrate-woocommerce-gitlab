@@ -1,4 +1,10 @@
 <?php
+/**
+ * Don't load this file directly!
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * rtWooGitlab Functions
