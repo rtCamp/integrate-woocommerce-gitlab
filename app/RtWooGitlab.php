@@ -165,11 +165,9 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 		}
 
 		function add_user_on_order_complete( $orderID, $oldStatus, $newStatus ) {
-
-			if($newStatus != 'completed')
+			if( $newStatus != 'completed' ) {
 				return;
-
-			global $rtGitlabClient;
+			}
 			$flag = $this->validate_checkout( $orderID );
 			if ( !$flag ) {
 				return;
