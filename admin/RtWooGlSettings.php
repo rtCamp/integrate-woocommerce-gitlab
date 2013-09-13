@@ -1,4 +1,10 @@
 <?php
+/**
+ * Don't load this file directly!
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /*
  * To change this template, choose Tools | Templates
@@ -69,6 +75,15 @@ if ( !class_exists( 'RtWooGlSettings' ) ) {
 						'30' => __( 'Developer', 'rtwoo-gitlab' ),
 						'40' => __( 'Master', 'rtwoo-gitlab' ),
 					)
+				),
+				array(
+					'title' => __( 'Gitlab Admin Email', 'rtwoo-gitlab' ),
+					'desc' => __( 'Email Communication will happen on this EmaiID.', 'rtwoo-gitlab' ),
+					'id' => 'rtwoogl_admin_email',
+					'css' => 'min-width:250px;',
+					'desc_tip' => true,
+					'type' => 'text',
+					'default' => get_option('admin_email'),
 				),
 				array( 'type' => 'sectionend', 'id' => 'rtwoogl_general' ),
 			);

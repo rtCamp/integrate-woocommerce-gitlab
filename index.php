@@ -3,7 +3,7 @@
   Plugin Name: rtwoo-gitlab
   Plugin URI: http://rtcamp.com
   Description: Reseller Module in Woocommerce
-  Version: 1.0.2
+  Version: 1.0.3
   Author: rtCamp
   Text Domain: rtwoo-gitlab
   Author URI: http://rtcamp.com
