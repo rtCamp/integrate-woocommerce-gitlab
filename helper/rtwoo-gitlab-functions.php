@@ -15,7 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 function rtwoogl_mail( $subject, $message ) {
-	wp_mail( 'faishal.saiyed@rtcamp.com', $subject, $message, 'Content-Type: text/html' );
+	$to = get_option('rtwoogl_admin_email', get_option('admin_email'));
+	wp_mail( $to, $subject, $message, 'Content-Type: text/html' );
 }
 
 function rtwoogl_get_query_vars( $post, $keys = array() ) {
