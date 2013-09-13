@@ -18,9 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 if ( !class_exists( 'RtWooGitlab' ) ) {
 	class RtWooGitlab {
-		
+
 		public $templateURL;
-		
+
 		public function __construct() {
 			// Plugin Init
 			add_action( 'init', array( $this, 'admin_init' ), 5 );
@@ -34,7 +34,7 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 
 		function init() {
 			$this->templateURL = apply_filters( 'rtwoogl_template_url', 'rtwoogl/' );
-			add_action( 'woocommerce_checkout_order_processed', array( $this, 'add_user_on_checkout' ), 10, 2 );
+			add_action( 'woocommerce_order_status_changed', array( $this, 'add_user_on_order_complete' ), 10, 3 );
 			add_action( 'woocommerce_order_status_changed', array( $this, 'remove_user_on_order_status_change' ),10, 3 );
 			add_action( 'before_delete_post', array( $this, 'remove_user_on_order_delete' ), 10, 1 );
 			add_action( 'woocommerce_email_after_order_table', array( $this, 'add_gitlab_user_details' ), 10, 2 );
@@ -81,7 +81,7 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 				)
 			);
 		}
-		
+
 		function validate_checkout( $orderID ) {
 			$order = new WC_Order( $orderID );
 			if ( empty( $order ) ) {
@@ -95,7 +95,7 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 			}
 			return false;
 		}
-		
+
 		function create_gitlab_user( $wp_user, $orderID ) {
 			global $rtGitlabClient;
 			$email    = $wp_user->data->user_email;
@@ -138,7 +138,7 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 			}
 			return $rtWooGLUser;
 		}
-		
+
 		function grant_access_to_gitlab( $order, $rtWooGLUser, $accessLevel ) {
 			global $rtGitlabClient;
 			foreach ( $order->get_items() as $product ) {
@@ -164,7 +164,11 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 			}
 		}
 
-		function add_user_on_checkout( $orderID, $orderMeta ) {
+		function add_user_on_order_complete( $orderID, $oldStatus, $newStatus ) {
+
+			if($newStatus != 'completed')
+				return;
+
 			global $rtGitlabClient;
 			$flag = $this->validate_checkout( $orderID );
 			if ( !$flag ) {
@@ -185,7 +189,7 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 				$this->remove_user_on_order_delete( $orderID );
 			}
 		}
-		
+
 		function revoke_access_from_gitlab( $order, $rtWooGLUser ) {
 			global $rtGitlabClient;
 			foreach ( $order->get_items() as $product ) {
