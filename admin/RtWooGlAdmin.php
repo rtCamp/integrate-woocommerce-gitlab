@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 if ( !class_exists( 'RtWooGlAdmin' ) ) {
 	class RtWooGlAdmin {
-		
+
 		public $error_message;
 
 		public function __construct() {
@@ -28,7 +28,7 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 			$this->add_product_metabox();
 			add_action( 'wp_ajax_rtwoogl_test_connection', array( $this, 'test_connection_wrapper' ) );
 		}
-		
+
 		function load_scripts() {
 			wp_enqueue_script( 'rtwoogl_script_admin', RT_WOO_GL_URL . 'assets/javascripts/admin.js', array( 'jquery' ), RT_WOO_GL_VERSION );
 			wp_localize_script( 'rtwoogl_script_admin', 'adminAjaxURL', admin_url( 'admin-ajax.php' ) );
@@ -56,7 +56,7 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 		 * @assert ( 'fggrg', 'HkFtzhCuc81LyVWewu18' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint URL is invalid.' )
 		 * @assert ( 'http://git.rtcamp.com/api/v3/', 'avdgvdsg' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
 		 * @assert ( 'http://google.com', 'HkFtzhCuc81LyVWewu18' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
-		 * 
+		 *
 		 * @param type $endPoint
 		 * @param type $token
 		 * @return type $response (Success/Failure)
@@ -69,10 +69,10 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 			} else {
 				$obj    = new rtGitlabClient( $endPoint, $token );
 				$result = $obj->test_connection();
-				if ( $result ) {
+				if ( $result['result'] == 'success' ) {
 					$response = array( 'result' => 'success', 'message' => __( 'Connection Successful.', 'rtwoo-gitlab' ) );
 				} else {
-					$response = array( 'result' => 'error', 'message' => __( 'Connection Failed. Invalid API Endpoint/Token. Please verify.', 'rtwoo-gitlab' ) );
+					$response = array( 'result' => 'error', 'message' => __( 'Connection Failed. '.$result['message'].' Please verify the settings.', 'rtwoo-gitlab' ) );
 				}
 			}
 			return $response;

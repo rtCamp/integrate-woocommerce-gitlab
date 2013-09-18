@@ -34,26 +34,32 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 
 		function init() {
 			$this->templateURL = apply_filters( 'rtwoogl_template_url', 'rtwoogl/' );
-			add_action( 'woocommerce_order_status_changed', array( $this, 'add_user_on_order_complete' ), 10, 3 );
-			add_action( 'woocommerce_order_status_changed', array( $this, 'remove_user_on_order_status_change' ),10, 3 );
-			add_action( 'before_delete_post', array( $this, 'remove_user_on_order_delete' ), 10, 1 );
-			add_action( 'woocommerce_email_after_order_table', array( $this, 'add_gitlab_user_details' ), 10, 2 );
+			add_action( 'woocommerce_order_status_changed', array( $this, 'add_user_on_order_complete' ), 1, 3 );
+			add_action( 'woocommerce_order_status_changed', array( $this, 'remove_user_on_order_status_change' ),1, 3 );
+			add_action( 'before_delete_post', array( $this, 'remove_user_on_order_delete' ), 1, 1 );
+			add_action( 'woocommerce_email_after_order_table', array( $this, 'add_gitlab_user_details' ), 1, 2 );
 		}
 
 		function validate_email_hijack( $order ) {
 			$flag = rtwoogl_backtrace( 'trigger', 'WC_Email_Customer_Completed_Order' );
 			if ( !$flag ) {
+				error_log('gitlab email : not our email');
 				return false;
 			}
+			error_log('----------------------------------------');
+			error_log('email');
+			error_log('----------------------------------------');
 			$rtWooGLUserStatus = get_post_meta( $order->id, '_rtwoogl_user', true );
 			if ( empty( $rtWooGLUserStatus ) ) {
+				error_log('gitlab email : old/new user flag not set');
 				return false;
 			}
-			$wp_user_id      = get_post_meta( $order->id, '_customer_user', true );
-			$rtwoogl_user_id = get_user_meta( $wp_user_id, '_rtwoogl_user_id', true );
+			$rtwoogl_user_id = get_post_meta( $order->id, '_rtwoogl_user_id', true );
 			if ( empty( $rtwoogl_user_id ) ) {
+				error_log('gitlab email : gitlab user id not found');
 				return false;
 			}
+
 			return true;
 		}
 
@@ -63,11 +69,22 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 			if ( !$this->validate_email_hijack( $order ) ) {
 				return;
 			}
-			$wp_user_id                = get_post_meta( $order->id, '_customer_user', true );
-			$rtwoogl_user_id           = get_user_meta( $wp_user_id, '_rtwoogl_user_id', true );
-			$rtWooGLUser               = $rtGitlabClient->get_user( $rtwoogl_user_id );
+			$rtwoogl_user_id = get_post_meta( $order->id, '_rtwoogl_user_id', true );
+			$rtWooGLUser     = false;
+			$response        = $rtGitlabClient->get_user( $rtwoogl_user_id );
+			if ( $response['result'] == 'success' ) {
+				$rtWooGLUser = $response['body'];
+			} else {
+				$message = 'Gitlab Credentials could not be sent via rtWooGitlab for the Order #'.$order->id.':<br />
+					User: '.$order->billing_first_name.' '.$order->billing_last_name.'<br />
+					Email: '.$order->billing_email.'<br />
+					Cause: '.$response['message'];
+
+				rtwoogl_mail( '[rtWooGitlab] IMPORTANT - Unexpected Behavior', $message );
+				return;
+			}
 			$rtWooGLUserStatus         = get_post_meta( $order->id, '_rtwoogl_user', true );
-			$password                  = get_user_meta( $wp_user_id, '_rtwoogl_user_pwd', true );
+			$password                  = get_post_meta( $order->id, '_rtwoogl_user_pwd', true );
 			$rtWooGLForgotPasswordLink = get_option( 'rtwoogl_forgot_password_link', '' );
 
 			rtwoogl_get_template(
@@ -96,44 +113,65 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 			return false;
 		}
 
-		function create_gitlab_user( $wp_user, $orderID ) {
+		function create_gitlab_user( $orderID ) {
 			global $rtGitlabClient;
-			$email    = $wp_user->data->user_email;
+			$user_id = get_post_meta( $orderID, '_customer_user', true );
+			if( !empty( $user_id ) ) {
+				$user = new WP_User( $user_id );
+				$email = $user->data->user_email;
+			} else {
+				$email = get_post_meta( $orderID, '_billing_email', true );
+			}
 			$password = wp_generate_password();
 
-			$s = explode( '@', $email );
-			array_pop( $s ); #remove last element.
+			$fname    = get_post_meta( $orderID, '_billing_first_name', true );
+			$lname    = get_post_meta( $orderID, '_billing_last_name', true );
+			$s        = explode( '@', $email );
+			array_pop( $s );
 			$s        = implode( '@', $s );
 			$username = $s;
-			if ( !empty( $wp_user->data->display_name ) ) {
-				$name = $wp_user->data->display_name;
-			} else {
-				$name = $s;
-			}
-			$rtWooGLUser = $rtGitlabClient->create_user( $email, $password, $username, $name );
-
-			if ( empty( $rtWooGLUser ) ) {
-				$message = 'User Creation has failed via rtWooGitlab for the Order #'.$orderID.'. User Details which failed ara as follows:<br />
-					Email: '.$email.'<br />
-					Username: '.$username.'<br />
-					Name: '.$name;
-
-				rtwoogl_mail( '[rtWooGitlab] IMPORTANT - Unexpected Behavior', $message );
-				return false;
-			} else {
+			$rtWooGLUser = false;
+			$response = $rtGitlabClient->create_user( $email, $password, $username, $username );
+			if ( $response['result'] == 'success' ) {
 				update_post_meta( $orderID, '_rtwoogl_user', 'new' );
-				update_user_meta( $wp_user->ID, '_rtwoogl_user_pwd', $password );
+				update_post_meta( $orderID, '_rtwoogl_user_pwd', $password );
+				$rtWooGLUser = $response['body'];
+			} else {
+				$username = strtolower($fname).'.'.  strtolower($lname);
+				$response = $rtGitlabClient->create_user( $email, $password, $username, $username );
+				if ( $response['result'] == 'success' ) {
+					update_post_meta( $orderID, '_rtwoogl_user', 'new' );
+					update_post_meta( $orderID, '_rtwoogl_user_pwd', $password );
+					$rtWooGLUser = $response['body'];
+				} else {
+					$message = 'User Creation has failed via rtWooGitlab for the Order #'.$orderID.'. User Details which failed ara as follows:<br />
+						Email: '.$email.'<br />
+						Username: '.$username.'<br />
+						Cause: '.$response['message'];
+
+					rtwoogl_mail( '[rtWooGitlab] IMPORTANT - Unexpected Behavior', $message );
+				}
 			}
 			return $rtWooGLUser;
 		}
 
 		function prepare_gitlab_user( $orderID ) {
+			error_log('----------------------------------------');
+			error_log('create user');
+			error_log('----------------------------------------');
 			global $rtGitlabClient;
-			$wp_user     = get_user_by( 'id', get_current_user_id() );
-			$rtWooGLUser = $rtGitlabClient->search_user( $wp_user->data->user_email );
-			if ( empty( $rtWooGLUser ) ) {
-				$rtWooGLUser = $this->create_gitlab_user( $wp_user, $orderID );
+			$user_id = get_post_meta( $orderID, '_customer_user', true );
+			if( !empty( $user_id ) ) {
+				$user = new WP_User( $user_id );
+				$email = $user->data->user_email;
 			} else {
+				$email = get_post_meta( $orderID, '_billing_email', true );
+			}
+			$response = $rtGitlabClient->search_user( $email );
+			if ( $response['result'] == 'error' ) {
+				$rtWooGLUser = $this->create_gitlab_user( $orderID );
+			} else {
+				$rtWooGLUser = $response['body'];
 				update_post_meta( $orderID, '_rtwoogl_user', 'old' );
 			}
 			return $rtWooGLUser;
@@ -146,15 +184,29 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 				if ( empty( $project_id ) ) {
 					continue;
 				}
-				$projectDetails = $rtGitlabClient->get_project_details( $project_id );
-				$projectMemberDetails = $rtGitlabClient->add_user_to_project( $rtWooGLUser->id, $project_id, $accessLevel );
-				if ( empty( $projectMemberDetails ) ) {
+				$response = $rtGitlabClient->get_project_details( $project_id );
+				if ( $response['result'] == 'success' ) {
+					$projectDetails = $response['body'];
+				} else {
+					$message = 'User could not be added to the project via rtWooGitlab for the Product - '.$product['name'].'. Details which failed ara as follows:<br />
+						Order: #'.$order->id.'<br />
+						Email: '.$rtWooGLUser->email.'<br />
+						Username: '.$rtWooGLUser->username.'<br />
+						Name: '.$rtWooGLUser->name.'<br /><br />
+						Cause: Could not fetch details for the project. <br />'.$response['message'];
+					$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
+					continue;
+				}
+				$response = $rtGitlabClient->add_user_to_project( $rtWooGLUser->id, $project_id, $accessLevel );
+				if ( $response['result'] == 'error' ) {
 					$message = 'User could not be added to Project '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$order->id.'. User Details which failed ara as follows:<br />
 						Email: '.$rtWooGLUser->email.'<br />
 						Username: '.$rtWooGLUser->username.'<br />
-						Name: '.$rtWooGLUser->name;
+						Name: '.$rtWooGLUser->name.'<br /><br />
+						Cause: '.$response['message'];
 					$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
 				} else {
+					$projectMemberDetails = $response['body'];
 					$message = 'New User is added to the project.<br />
 						Project: '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>)<br />
 						User: '.$projectMemberDetails->name.'('.$projectMemberDetails->username.')';
@@ -178,14 +230,14 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 			if ( empty( $rtWooGLUser ) ) {
 				return;
 			}
-			update_user_meta( get_current_user_id(), '_rtwoogl_user_id', $rtWooGLUser->id );
+			update_post_meta( $orderID, '_rtwoogl_user_id', $rtWooGLUser->id );
 			$accessLevel = get_option( 'rtwoogl_default_access', '20' );
 			$order = new WC_Order( $orderID );
 			$this->grant_access_to_gitlab( $order, $rtWooGLUser, $accessLevel );
 		}
 
 		function remove_user_on_order_status_change( $orderID, $oldStatus, $newStatus ) {
-			if ( $newStatus === 'refunded' ) {
+			if ( $newStatus === 'refunded' || $newStatus === 'cancelled' ) {
 				$this->remove_user_on_order_delete( $orderID );
 			}
 		}
@@ -195,15 +247,28 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 			foreach ( $order->get_items() as $product ) {
 				$project_id = get_post_meta( $product['product_id'], '_rtwoogl_project', true );
 				if ( empty( $project_id ) ) {
-					return;
+					continue;
 				}
-				$projectDetails = $rtGitlabClient->get_project_details( $project_id );
-				$response       = $rtGitlabClient->remove_user_from_project( $rtWooGLUser->id, $project_id );
-				if ( empty( $response ) ) {
+				$response = $rtGitlabClient->get_project_details( $project_id );
+				if ( $response['result'] == 'success' ) {
+					$projectDetails = $response['body'];
+				} else {
+					$message = 'User could not be removed from the project via rtWooGitlab for the Product - '.$product['name'].'. Details which failed ara as follows:<br />
+						Order: #'.$order->id.'<br />
+						Email: '.$rtWooGLUser->email.'<br />
+						Username: '.$rtWooGLUser->username.'<br />
+						Name: '.$rtWooGLUser->name.'<br /><br />
+						Cause: Could not fetch details for the project. <br />'.$response['message'];
+					$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
+					continue;
+				}
+				$response = $rtGitlabClient->remove_user_from_project( $rtWooGLUser->id, $project_id );
+				if ( $response['result'] == 'error' ) {
 					$message = 'User could not be removed/alreadey removed from Project '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$order->id.'. User Details which failed ara as follows:<br />
 						Email: '.$rtWooGLUser->email.'<br />
 						Username: '.$rtWooGLUser->username.'<br />
-						Name: '.$rtWooGLUser->name;
+						Name: '.$rtWooGLUser->name.'<br /><br />
+						Cause: '.$response['message'];
 					$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
 				} else {
 					$message = 'User is removed successfully from Project '.$projectDetails->name_with_namespace.'(<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$order->id.'. User Details which failed ara as follows:<br />
@@ -217,22 +282,21 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 		}
 
 		function remove_user_on_order_delete( $postID ) {
-
 			global $rtGitlabClient;
 			$order = new WC_Order( $postID );
 			if ( empty( $order ) ) {
 				return;
 			}
-
-			$wp_user_id      = get_post_meta( $order->id, '_customer_user', true );
-			$rtwoogl_user_id = get_user_meta( $wp_user_id, '_rtwoogl_user_id', true );
+			$rtwoogl_user_id = get_post_meta( $order->id, '_rtwoogl_user_id', true );
 			if ( empty( $rtwoogl_user_id ) ) {
 				return;
 			}
-			$rtWooGLUser = $rtGitlabClient->get_user( $rtwoogl_user_id );
-
+			$response = $rtGitlabClient->get_user( $rtwoogl_user_id );
+			if ( $response['result'] == 'error' ) {
+				return;
+			}
+			$rtWooGLUser = $response['body'];
 			$this->revoke_access_from_gitlab( $order, $rtWooGLUser );
-
 		}
 	}
 }
