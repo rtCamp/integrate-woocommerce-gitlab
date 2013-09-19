@@ -34,7 +34,17 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 
 		function init() {
 			$this->templateURL = apply_filters( 'rtwoogl_template_url', 'rtwoogl/' );
-			add_action( 'woocommerce_order_status_changed', array( $this, 'add_user_on_order_complete' ), 1, 3 );
+			$email_settings = get_option( 'woocommerce_customer_completed_order_settings', true );
+			if( !empty( $email_settings ) ) {
+				$email_enabled = $email_settings['enabled'];
+			} else {
+				$email_enabled = 'yes';
+			}
+			if ( $email_enabled == 'yes' ) {
+				add_action( 'woocommerce_order_status_completed_notification', array( $this, 'add_user_on_order_complete' ), 1, 1 );
+			} else {
+				add_action( 'woocommerce_order_status_changed', array( $this, 'add_user_on_order_status_complete' ), 1, 3 );
+			}
 			add_action( 'woocommerce_order_status_changed', array( $this, 'remove_user_on_order_status_change' ),1, 3 );
 			add_action( 'before_delete_post', array( $this, 'remove_user_on_order_delete' ), 1, 1 );
 			add_action( 'woocommerce_email_after_order_table', array( $this, 'add_gitlab_user_details' ), 1, 2 );
@@ -43,20 +53,14 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 		function validate_email_hijack( $order ) {
 			$flag = rtwoogl_backtrace( 'trigger', 'WC_Email_Customer_Completed_Order' );
 			if ( !$flag ) {
-				error_log('gitlab email : not our email');
 				return false;
 			}
-			error_log('----------------------------------------');
-			error_log('email');
-			error_log('----------------------------------------');
 			$rtWooGLUserStatus = get_post_meta( $order->id, '_rtwoogl_user', true );
 			if ( empty( $rtWooGLUserStatus ) ) {
-				error_log('gitlab email : old/new user flag not set');
 				return false;
 			}
 			$rtwoogl_user_id = get_post_meta( $order->id, '_rtwoogl_user_id', true );
 			if ( empty( $rtwoogl_user_id ) ) {
-				error_log('gitlab email : gitlab user id not found');
 				return false;
 			}
 
@@ -156,9 +160,6 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 		}
 
 		function prepare_gitlab_user( $orderID ) {
-			error_log('----------------------------------------');
-			error_log('create user');
-			error_log('----------------------------------------');
 			global $rtGitlabClient;
 			$user_id = get_post_meta( $orderID, '_customer_user', true );
 			if( !empty( $user_id ) ) {
@@ -216,10 +217,7 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 			}
 		}
 
-		function add_user_on_order_complete( $orderID, $oldStatus, $newStatus ) {
-			if( $newStatus != 'completed' ) {
-				return;
-			}
+		function add_user_on_order_complete( $orderID ) {
 			$flag = $this->validate_checkout( $orderID );
 			if ( !$flag ) {
 				return;
@@ -232,6 +230,13 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 			$accessLevel = get_option( 'rtwoogl_default_access', '20' );
 			$order = new WC_Order( $orderID );
 			$this->grant_access_to_gitlab( $order, $rtWooGLUser, $accessLevel );
+		}
+
+		function add_user_on_order_status_complete( $orderID, $oldStatus, $newStatus ) {
+			if( $newStatus != 'completed' ) {
+				return;
+			}
+			$this->add_user_on_order_complete( $orderID );
 		}
 
 		function remove_user_on_order_status_change( $orderID, $oldStatus, $newStatus ) {
