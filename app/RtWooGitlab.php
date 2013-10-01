@@ -148,12 +148,22 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 					update_post_meta( $orderID, '_rtwoogl_user_pwd', $password );
 					$rtWooGLUser = $response['body'];
 				} else {
-					$message = 'User Creation has failed via rtWooGitlab for the Order #'.$orderID.'. User Details which failed are as follows:<br />
-						Email: '.$email.'<br />
-						Username: '.$username.'<br />
-						Cause: '.$response['message'];
+					$fname = get_post_meta( $orderID, 'Payer first name', true );
+					$lname = get_post_meta( $orderID, 'Payer last name', true );
+					$username = $fname.'.'.$lname;
+					$response = $rtGitlabClient->create_user( $email, $password, $username, $username );
+					if ( $response['result'] == 'success' ) {
+						update_post_meta( $orderID, '_rtwoogl_user', 'new' );
+						update_post_meta( $orderID, '_rtwoogl_user_pwd', $password );
+						$rtWooGLUser = $response['body'];
+					} else {
+						$message = 'User Creation has failed via rtWooGitlab for the Order #'.$orderID.'. User Details which failed are as follows:<br />
+							Email: '.$email.'<br />
+							Username: '.$username.'<br />
+							Cause: '.$response['message'];
 
-					rtwoogl_mail( '[rtWooGitlab] IMPORTANT - Unexpected Behavior', $message );
+						rtwoogl_mail( '[rtWooGitlab] IMPORTANT - Unexpected Behavior', $message );
+					}
 				}
 			}
 			return $rtWooGLUser;
