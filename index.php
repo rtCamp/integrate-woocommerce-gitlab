@@ -3,7 +3,7 @@
   Plugin Name: rtwoo-gitlab
   Plugin URI: http://rtcamp.com
   Description: Gitlab Binding with Woocommerce
-  Version: 1.0.5
+  Version: 1.0.6
   Author: rtCamp
   Text Domain: rtwoo-gitlab
   Author URI: http://rtcamp.com
