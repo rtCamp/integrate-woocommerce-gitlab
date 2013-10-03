@@ -6,13 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of rtWooGLAdmin
+ * rtWooGLAdmin
  *
  * @author udit
  */
@@ -50,12 +45,12 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 		}
 
 		/**
-		 * Test Cases
-		 * @assert ( 'http://git.rtcamp.com/api/v3/', 'HkFtzhCuc81LyVWewu18' ) == array( 'result' => 'success', 'message' => 'Connection Successful.' )
+		 * Test Cases - Useful in Automated Testing via PHPUnit
+		 * @assert ( 'http://git.rtcamp.com/api/v3/', 'API KEY' ) == array( 'result' => 'success', 'message' => 'Connection Successful.' )
 		 * @assert ( '', '' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint/Token is missing.' )
-		 * @assert ( 'fggrg', 'HkFtzhCuc81LyVWewu18' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint URL is invalid.' )
+		 * @assert ( 'fggrg', 'API KEY' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint URL is invalid.' )
 		 * @assert ( 'http://git.rtcamp.com/api/v3/', 'avdgvdsg' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
-		 * @assert ( 'http://google.com', 'HkFtzhCuc81LyVWewu18' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
+		 * @assert ( 'http://google.com', 'API KEY' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
 		 *
 		 * @param type $endPoint
 		 * @param type $token

@@ -1,6 +1,7 @@
 <?php
 /**
  * Functions used by plugins
+ * Woocommerce Dependency Check Helper Functions
  */
 if ( ! class_exists( 'WC_Dependencies' ) )
 	require_once 'class-wc-dependencies.php';

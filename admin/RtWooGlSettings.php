@@ -6,13 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of rtWooGLSettings
+ * rtWooGLSettings
  *
  * @author udit
  */
