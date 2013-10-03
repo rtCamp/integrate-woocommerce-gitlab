@@ -99,7 +99,6 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 				'provider' => 'rtwoo_gitlab',
 			);
 			$response = \Httpful\Request::post( $this->endPoint.'/users' )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->body( json_encode( $args ) )->sendsJson()->send();
-			var_dump($response);
 			$result = $this->identify_response($response);
 			return $result;
 		}
