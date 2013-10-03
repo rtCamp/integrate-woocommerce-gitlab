@@ -1,19 +1,19 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
- * 
+ *
  * rtWooGitlab Admin JavaScripts
  */
 
 jQuery(document).ready(function($) {
-	
+
 	if( $('#rtwoogl_test_connection').length > 0 ) {
 		$('#rtwoogl_test_connection').click(function(e) {
 			e.preventDefault();
 			var that = this;
 			jQuery(that).next().remove();
-			jQuery(that).parent().append('<img class="tmp-process" src="'+ rtwoogl_loading_file +  '" />');
+			jQuery(that).parent().append('<span style="padding-left: 10px;"><img class="tmp-process" src="'+ rtwoogl_loading_file +  '" /></span>');
 			jQuery.post(adminAjaxURL, {
 				action: 'rtwoogl_test_connection',
 				endPoint: jQuery('#rtwoogl_api_endpoint').val().trim(),
@@ -22,7 +22,7 @@ jQuery(document).ready(function($) {
 				jQuery(that).next().remove();
 				data = jQuery.parseJSON(data);
 				if(data.message !== 'undefined')
-					jQuery(that).parent().append('<span>'+data.message+'</span>');
+					jQuery(that).parent().append('<span style="padding-left: 10px;">'+data.message+'</span>');
 			});
 		});
 	}

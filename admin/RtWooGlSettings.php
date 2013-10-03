@@ -39,7 +39,7 @@ if ( !class_exists( 'RtWooGlSettings' ) ) {
 				),
 				array(
 					'title' => __( 'Gitlab Private Token', 'rtwoo-gitlab' ),
-					'desc' => __( 'Gitlab API Private Token', 'rtwoo-gitlab' ),
+					'desc' => __( 'Gitlab API Private Token of a Gitlab Admin who has access of all the Gitlab Repositories.', 'rtwoo-gitlab' ),
 					'id' => 'rtwoogl_private_token',
 					'css' => 'min-width:250px;',
 					'desc_tip' => true,
@@ -95,12 +95,18 @@ if ( !class_exists( 'RtWooGlSettings' ) ) {
 		}
 
 		function add_woo_settings_tab( $tabs ) {
-			$tabs['rtwoogl'] = __( 'Gitlab', 'rtwoo-gitlab' );
+			$tabs['rtwoogl'] = __( 'GitLab', 'rtwoo-gitlab' );
 			return $tabs;
 		}
 
 		function woo_settings() {
-			global $woocommerce_settings;
+			global $woocommerce_settings, $rtWooGLAdmin;
+			$endPoint = get_option( 'rtwoogl_api_endpoint', '' );
+			$token = get_option( 'rtwoogl_private_token', '' );
+			$response = $rtWooGLAdmin->test_connection( $endPoint, $token );
+			if( $response['result'] == 'error' ) {
+				echo '<div id="rtwoogl_message" class="error fade"><p><strong>'.$response['message'].'</strong></p></div>';
+			}
 			woocommerce_admin_fields( $woocommerce_settings['rtwoogl'] );
 			?>
 				<div><a href="#" id="rtwoogl_test_connection" class="button" style="margin-top: 15px;">Test Connection</a></div>

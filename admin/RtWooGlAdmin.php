@@ -46,11 +46,11 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 
 		/**
 		 * Test Cases - Useful in Automated Testing via PHPUnit
-		 * @assert ( 'http://git.rtcamp.com/api/v3/', 'API KEY' ) == array( 'result' => 'success', 'message' => 'Connection Successful.' )
+		 * @assert ( 'http://gitlab.example.com/api/v3/', 'Gitlab Private Token' ) == array( 'result' => 'success', 'message' => 'Connection Successful.' )
 		 * @assert ( '', '' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint/Token is missing.' )
-		 * @assert ( 'fggrg', 'API KEY' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint URL is invalid.' )
-		 * @assert ( 'http://git.rtcamp.com/api/v3/', 'avdgvdsg' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
-		 * @assert ( 'http://google.com', 'API KEY' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
+		 * @assert ( 'fggrg', 'Gitlab Private Token' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint URL is invalid.' )
+		 * @assert ( 'http://gitlab.example.com/api/v3/', 'avdgvdsg' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
+		 * @assert ( 'http://google.com', 'Gitlab Private Token' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
 		 *
 		 * @param type $endPoint
 		 * @param type $token
@@ -67,7 +67,7 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 				if ( $result['result'] == 'success' ) {
 					$response = array( 'result' => 'success', 'message' => __( 'Connection Successful.', 'rtwoo-gitlab' ) );
 				} else {
-					$response = array( 'result' => 'error', 'message' => __( 'Connection Failed. '.$result['message'].' Please verify the settings.', 'rtwoo-gitlab' ) );
+					$response = array( 'result' => 'error', 'message' => __( 'Connection Failed. '.$result['message'].'. Please verify the settings.', 'rtwoo-gitlab' ) );
 				}
 			}
 			return $response;
@@ -112,6 +112,10 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 					<option value="<?php echo esc_attr( $project->id ); ?>" <?php echo esc_attr( ( $project_id == $project->id ) ? 'selected="selected"' : '' ); ?>><?php echo esc_attr( $project->name_with_namespace ); ?></option>
 				<?php } ?>
 				</select>
+				<?php if ( empty( $projects ) ) { ?>
+				<br /><br />
+				<span><?php _e('Project list is empty.<br />Either there are no project repositeries on your Gitlab or Gitlab Connection is failed.<br />We suggest you to check the Gitlab API Endpoint & Gitlab Private Token from '); ?><a target="_blank" href="<?php echo admin_url('admin.php?page=woocommerce_settings&tab=rtwoogl'); ?>">here</a></span>
+				<?php } ?>
 		<?php }
 
 		function save_gitlab_project_meta( $post_id ) {
