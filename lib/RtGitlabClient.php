@@ -24,7 +24,10 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 
 		function get_all_projects() {
 			if ( empty( $this->endPoint ) ) {
-				return false;
+				return array( 'result' => 'error', 'message' => 'API Endpoint Not Found.' );
+			}
+			if ( empty( $this->privateToken ) ) {
+				return array( 'result' => 'error', 'message' => 'Private Token Not Found.' );
 			}
 			$projects = array();
 			$page     = 1;
@@ -39,12 +42,17 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 				}
 				$page++;
 			}
-			return $projects;
+			$result['result'] = 'success';
+			$result['body'] = $projects;
+			return $result;
 		}
 
 		function test_connection() {
 			if ( empty( $this->endPoint ) ) {
 				return array( 'result' => 'error', 'message' => 'API Endpoint Not Found.' );
+			}
+			if ( empty( $this->privateToken ) ) {
+				return array( 'result' => 'error', 'message' => 'Private Token Not Found.' );
 			}
 			$response = \Httpful\Request::get( $this->endPoint.'projects' )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->send();
 			$result = $this->identify_response($response);
@@ -73,6 +81,9 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 			if ( empty( $this->endPoint ) ) {
 				return array( 'result' => 'error', 'message' => 'API Endpoint Not Found.' );
 			}
+			if ( empty( $this->privateToken ) ) {
+				return array( 'result' => 'error', 'message' => 'Private Token Not Found.' );
+			}
 			$response = \Httpful\Request::get( $this->endPoint.'/projects/'.$projectID )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->send();
 			$result = $this->identify_response($response);
 			return $result;
@@ -82,6 +93,9 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 			if ( empty( $this->endPoint ) ) {
 				return array( 'result' => 'error', 'message' => 'API Endpoint Not Found.' );
 			}
+			if ( empty( $this->privateToken ) ) {
+				return array( 'result' => 'error', 'message' => 'Private Token Not Found.' );
+			}
 			$response = \Httpful\Request::get( $this->endPoint.'/users/'.$id )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->send();
 			$result = $this->identify_response($response);
 			return $result;
@@ -90,6 +104,9 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 		function create_user( $email, $password, $username, $name ) {
 			if ( empty( $this->endPoint ) ) {
 				return array( 'result' => 'error', 'message' => 'API Endpoint Not Found.' );
+			}
+			if ( empty( $this->privateToken ) ) {
+				return array( 'result' => 'error', 'message' => 'Private Token Not Found.' );
 			}
 			$args = array(
 				'email' => $email,
@@ -107,6 +124,9 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 			if ( empty( $this->endPoint ) ) {
 				return array( 'result' => 'error', 'message' => 'API Endpoint Not Found.' );
 			}
+			if ( empty( $this->privateToken ) ) {
+				return array( 'result' => 'error', 'message' => 'Private Token Not Found.' );
+			}
 			$args = array(
 				'id' => $projectID,
 				'user_id' => $userID,
@@ -121,6 +141,9 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 			if ( empty( $this->endPoint ) ) {
 				return array( 'result' => 'error', 'message' => 'API Endpoint Not Found.' );
 			};
+			if ( empty( $this->privateToken ) ) {
+				return array( 'result' => 'error', 'message' => 'Private Token Not Found.' );
+			}
 			$args = array(
 				'id' => $projectID,
 				'user_id' => $userID,
@@ -133,6 +156,9 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 		function search_user( $email ) {
 			if ( empty( $this->endPoint ) ) {
 				return array( 'result' => 'error', 'message' => 'API Endpoint Not Found.' );
+			}
+			if ( empty( $this->privateToken ) ) {
+				return array( 'result' => 'error', 'message' => 'Private Token Not Found.' );
 			}
 			$page = 1;
 			while ( 1 ) {

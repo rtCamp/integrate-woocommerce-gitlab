@@ -30,7 +30,7 @@ if ( !class_exists( 'RtWooGlSettings' ) ) {
 				),
 				array(
 					'title' => __( 'Gitlab Endpoint', 'rtwoo-gitlab' ),
-					'desc' => __( 'Gitlab API Endpoint to Access the Git Server', 'rtwoo-gitlab' ),
+					'desc' => __( 'Gitlab API Endpoint to access the Git Server', 'rtwoo-gitlab' ),
 					'id' => 'rtwoogl_api_endpoint',
 					'css' => 'min-width:250px;',
 					'desc_tip' => true,
@@ -48,7 +48,7 @@ if ( !class_exists( 'RtWooGlSettings' ) ) {
 				),
 				array(
 					'title' => __( 'Gitlab Forgot Password Link', 'rtwoo-gitlab' ),
-					'desc' => __( 'User will be given this link; in case he/she has forgotten the Gitlab login password.', 'rtwoo-gitlab' ),
+					'desc' => __( 'User will be given this link in the email; in case he/she has forgotten the Gitlab login password.', 'rtwoo-gitlab' ),
 					'id' => 'rtwoogl_forgot_password_link',
 					'css' => 'min-width:250px;',
 					'desc_tip' => true,
@@ -73,7 +73,7 @@ if ( !class_exists( 'RtWooGlSettings' ) ) {
 				),
 				array(
 					'title' => __( 'Gitlab Admin Email', 'rtwoo-gitlab' ),
-					'desc' => __( 'Email Communication will happen on this EmaiID.', 'rtwoo-gitlab' ),
+					'desc' => __( 'Email Communication will happen on this EmaiID. If not set; Wordpress Admin Email will be used.', 'rtwoo-gitlab' ),
 					'id' => 'rtwoogl_admin_email',
 					'css' => 'min-width:250px;',
 					'desc_tip' => true,

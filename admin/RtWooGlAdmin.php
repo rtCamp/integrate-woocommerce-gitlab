@@ -102,7 +102,12 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 
 		function form_gitlab_project_meta( $post ) {
 			global $rtGitlabClient;
-			$projects   = $rtGitlabClient->get_all_projects();
+			$response = $rtGitlabClient->get_all_projects();
+			if( $response['result'] == 'success' ) {
+				$projects = $response['body'];
+			} else {
+				$projects = array();
+			}
 			$project_id = get_post_meta( $post->ID, '_rtwoogl_project', true );
 			wp_nonce_field( plugin_basename( __FILE__ ), '_noncename' ); ?>
 				<label for="_rtwoogl_project" class="selectit"><?php _e( 'Gitlab Project', 'rtwoo-gitlab' ); ?></label>
@@ -112,9 +117,12 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 					<option value="<?php echo esc_attr( $project->id ); ?>" <?php echo esc_attr( ( $project_id == $project->id ) ? 'selected="selected"' : '' ); ?>><?php echo esc_attr( $project->name_with_namespace ); ?></option>
 				<?php } ?>
 				</select>
-				<?php if ( empty( $projects ) ) { ?>
-				<br /><br />
-				<span><?php _e('Project list is empty.<br />Either there are no project repositeries on your Gitlab or Gitlab Connection is failed.<br />We suggest you to check the Gitlab API Endpoint & Gitlab Private Token from '); ?><a target="_blank" href="<?php echo admin_url('admin.php?page=woocommerce_settings&tab=rtwoogl'); ?>">here</a></span>
+				<?php if ( $response['result'] == 'error' ) { ?>
+					<br /><br />
+					<span><?php _e('Project list is empty.<br />Gitlab Connection is failed.<br />We suggest you to check the Gitlab API Endpoint & Gitlab Private Token from '); ?><a target="_blank" href="<?php echo admin_url('admin.php?page=woocommerce_settings&tab=rtwoogl'); ?>">here</a></span>
+				<?php } else if ( empty( $projects ) ) { ?>
+					<br /><br />
+					<span><?php _e('Project list is empty. There are no project repositeries on your Gitlab Server.'); ?></span>
 				<?php } ?>
 		<?php }
 
