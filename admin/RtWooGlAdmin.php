@@ -109,7 +109,7 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 				$projects = array();
 			}
 			$project_id = get_post_meta( $post->ID, '_rtwoogl_project', true );
-			wp_nonce_field( plugin_basename( __FILE__ ), '_noncename' ); ?>
+			wp_nonce_field( plugin_basename( __FILE__ ), '_rtwoogl_noncename' ); ?>
 				<label for="_rtwoogl_project" class="selectit"><?php _e( 'Gitlab Project', 'rtwoo-gitlab' ); ?></label>
 				<select id="_rtwoogl_project" name="_rtwoogl_project">
 					<option value=""><?php _e( 'N/A', 'rtwoo-gitlab' ); ?></option>
@@ -130,8 +130,8 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 				return;
 			}
-			extract( rtwoogl_get_query_vars( $_POST, array( '_noncename', 'post_type', '_rtwoogl_project' ) ) );
-			if ( !wp_verify_nonce( $_noncename, plugin_basename( __FILE__ ) ) ) {
+			extract( rtwoogl_get_query_vars( $_POST, array( '_rtwoogl_noncename', 'post_type', '_rtwoogl_project' ) ) );
+			if ( !wp_verify_nonce( $_rtwoogl_noncename, plugin_basename( __FILE__ ) ) ) {
 				return;
 			}
 			if ( 'product' == $post_type && $_rtwoogl_project ) {
