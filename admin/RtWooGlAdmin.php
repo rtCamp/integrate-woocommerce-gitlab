@@ -47,7 +47,7 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 
 		function init_gitlab_client() {
 			global $rtGitlabClient;
-			$endPoint       = get_option( 'rtwoogl_api_endpoint', '' );
+			$endPoint       = trailingslashit( get_option( 'rtwoogl_api_endpoint', '' ) );
 			$privateToken   = get_option( 'rtwoogl_private_token', '' );
 			$rtGitlabClient	= new rtGitlabClient( $endPoint, $privateToken );
 		}

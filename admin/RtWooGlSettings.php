@@ -87,7 +87,7 @@ if ( !class_exists( 'RtWooGlSettings' ) ) {
 		function update_woo_settings() {
 			global $woocommerce_settings, $rtWooGLAdmin;
 			woocommerce_update_options( $woocommerce_settings['rtwoogl'] );
-			$endPoint = get_option( 'rtwoogl_api_endpoint', '' );
+			$endPoint = trailingslashit( get_option( 'rtwoogl_api_endpoint', '' ) );
 			$token = get_option( 'rtwoogl_private_token', '' );
 			$response = $rtWooGLAdmin->test_connection( $endPoint, $token );
 			if( $response['result'] == 'error' ) {

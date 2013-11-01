@@ -54,8 +54,15 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 			if ( empty( $this->privateToken ) ) {
 				return array( 'result' => 'error', 'message' => 'Private Token Not Found.' );
 			}
-			$response = \Httpful\Request::get( $this->endPoint.'projects' )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->send();
+			$response = \Httpful\Request::get( $this->endPoint.'user' )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->send();
 			$result = $this->identify_response($response);
+			if( $result['result'] == 'success' ) {
+				$user = $result['body'];
+				if( $user->is_admin != true ) {
+					$result['result'] = 'error';
+					$result['message'] = 'This Private Token is not of an admin account';
+				}
+			}
 			return $result;
 		}
 
@@ -84,7 +91,7 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 			if ( empty( $this->privateToken ) ) {
 				return array( 'result' => 'error', 'message' => 'Private Token Not Found.' );
 			}
-			$response = \Httpful\Request::get( $this->endPoint.'/projects/'.$projectID )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->send();
+			$response = \Httpful\Request::get( $this->endPoint.'projects/'.$projectID )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->send();
 			$result = $this->identify_response($response);
 			return $result;
 		}
@@ -96,7 +103,19 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 			if ( empty( $this->privateToken ) ) {
 				return array( 'result' => 'error', 'message' => 'Private Token Not Found.' );
 			}
-			$response = \Httpful\Request::get( $this->endPoint.'/users/'.$id )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->send();
+			$response = \Httpful\Request::get( $this->endPoint.'users/'.$id )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->send();
+			$result = $this->identify_response($response);
+			return $result;
+		}
+
+		function get_current_user() {
+			if ( empty( $this->endPoint ) ) {
+				return array( 'result' => 'error', 'message' => 'API Endpoint Not Found.' );
+			}
+			if ( empty( $this->privateToken ) ) {
+				return array( 'result' => 'error', 'message' => 'Private Token Not Found.' );
+			}
+			$response = \Httpful\Request::get( $this->endPoint.'user' )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->send();
 			$result = $this->identify_response($response);
 			return $result;
 		}
@@ -115,7 +134,7 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 				'name' => $name,
 				'provider' => 'rtwoo_gitlab',
 			);
-			$response = \Httpful\Request::post( $this->endPoint.'/users' )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->body( json_encode( $args ) )->sendsJson()->send();
+			$response = \Httpful\Request::post( $this->endPoint.'users' )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->body( json_encode( $args ) )->sendsJson()->send();
 			$result = $this->identify_response($response);
 			return $result;
 		}
@@ -132,7 +151,7 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 				'user_id' => $userID,
 				'access_level' => $accessLevel,
 			);
-			$response = \Httpful\Request::post( $this->endPoint.'/projects/'.$projectID.'/members' )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->body( json_encode( $args ) )->sendsJson()->send();
+			$response = \Httpful\Request::post( $this->endPoint.'projects/'.$projectID.'/members' )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->body( json_encode( $args ) )->sendsJson()->send();
 			$result = $this->identify_response($response);
 			return $result;
 		}
@@ -148,7 +167,7 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 				'id' => $projectID,
 				'user_id' => $userID,
 			);
-			$response = \Httpful\Request::delete( $this->endPoint.'/projects/'.$projectID.'/members/'.$userID )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->body( json_encode( $args ) )->sendsJson()->send();
+			$response = \Httpful\Request::delete( $this->endPoint.'projects/'.$projectID.'/members/'.$userID )->addHeader( 'PRIVATE-TOKEN', $this->privateToken )->body( json_encode( $args ) )->sendsJson()->send();
 			$result = $this->identify_response($response);
 			return $result;
 		}
