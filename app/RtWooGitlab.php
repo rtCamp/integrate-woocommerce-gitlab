@@ -214,9 +214,9 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 				} else {
 					$projectMemberDetails = $response['body'];
 					$message = 'New User is added to the project.<br />
-						Project: '.$projectDetails->name_with_namespace.' (<a href="'.$projectDetails->web_url.'">here</a>)<br />
-						User: '.$projectMemberDetails->name.'('.$projectMemberDetails->username.')';
-					$subject = '[rtWooGitlab] New User added to GitLab Project';
+						Project: '.$projectDetails->name_with_namespace.' ( <a href="'.$projectDetails->web_url.'">here</a> )<br />
+						User: '.$projectMemberDetails->name.' ( '.$projectMemberDetails->username.' )';
+					$subject = '[WooCommerce GitLab] New User added to GitLab Project';
 				}
 				rtwoogl_mail( $subject, $message );
 			}
