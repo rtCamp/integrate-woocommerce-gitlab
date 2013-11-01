@@ -8,7 +8,7 @@
  */
 ?>
 <h2><?php _e( 'Source-code Access', 'rtwoo-gitlab' ); ?></h2>
-<span><?php _e( '**You can directly access the source-code via Gitlab.', 'rtwoo-gitlab' ); ?></span>
+<span><?php _e( '**You can directly access the source-code via GitLab.', 'rtwoo-gitlab' ); ?></span>
 <p><strong><?php _e( 'Username:', 'rtwoo-gitlab' ); ?></strong> <?php echo esc_attr( $rtWooGLUser->username ); ?></p>
 
 <?php // Check whether new user or existing user

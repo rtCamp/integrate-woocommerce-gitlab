@@ -1,12 +1,12 @@
 <?php
 /*
-  Plugin Name: rtwoo-gitlab
-  Plugin URI: http://rtcamp.com
-  Description: Gitlab Binding with Woocommerce
-  Version: 1.0.8
+  Plugin Name: WooCommerce GitLab Addon
+  Plugin URI: https://rtcamp.com/store/woocommerce-gitlab
+  Description: WooCommerce GitLab Addon provides a simple way to connect GitLab to WooCommerce.
+  Version: 2.0.0
   Author: rtCamp
+  Author URI: https://rtcamp.com
   Text Domain: rtwoo-gitlab
-  Author URI: http://rtcamp.com
  */
 
 /**
@@ -17,7 +17,7 @@
  */
 
 if ( !defined( 'RT_WOO_GL_VERSION' ) ) {
-	define( 'RT_WOO_GL_VERSION', '1.0.0' );
+	define( 'RT_WOO_GL_VERSION', '2.0.0' );
 }
 if ( !defined( 'RT_WOO_GL_PATH' ) ) {
 	define( 'RT_WOO_GL_PATH', plugin_dir_path( __FILE__ ) );
@@ -83,15 +83,40 @@ function rtwoo_gitlab_woo_check() {
 	}
 }
 
+function rtwoogl_admin_notices() { ?>
+    <div class="updated">
+        <p><?php _e( '<b>WooCommerce GitLab</b> : Woocommerce is either not installed or deactivated. Please make sure that it is installed & activated.' ); ?></p>
+    </div>
+<?php }
+
 function rtwoo_gitlab_init() {
 
 	rtwoo_gitlab_include();
 
-	$flag = rtwoo_gitlab_woo_check();
+	global $rtWooGitlab;
+	$rtWooGitlab = new RtWooGitlab();
 
-	if ( $flag ) {
-		global $rtWooGitlab;
-		$rtWooGitlab = new RtWooGitlab();
-	}
 }
-add_action( 'woocommerce_init', 'rtwoo_gitlab_init' );
+
+add_filter('plugin_row_meta',  'rtwoogl_plugin_links', 10, 2);
+add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'rtwoogl_plugin_link_actions' );
+function rtwoogl_plugin_links($links, $file) {
+	$base = plugin_basename(__FILE__);
+	if ($file == $base) {
+		$links[] = '<a href=" https://rtcamp.com/store/woocommerce-gitlab#tab-faq">' . __('FAQs') . '</a>';
+		$links[] = '<a href="https://rtcamp.com">' . __('Support') . '</a>';
+	}
+	return $links;
+}
+
+function rtwoogl_plugin_link_actions( $links ) {
+    return array_merge( array( 'settings' => '<a href="'. admin_url('admin.php?page=woocommerce_settings&tab=rtwoogl') .'">' . __( 'Settings' ) . '</a>' ), $links );
+}
+
+$flag = rtwoo_gitlab_woo_check();
+if ( $flag ) {
+	add_action( 'woocommerce_init', 'rtwoo_gitlab_init' );
+} else {
+	add_action( 'admin_notices', 'rtwoogl_admin_notices' );
+}
+

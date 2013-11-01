@@ -29,13 +29,13 @@ class RtWooGlAdminTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * Generated from @assert ( 'http://gitlab.example.com/api/v3/', 'Gitlab Private Token' ) == array( 'result' => 'success', 'message' => 'Connection Successful.' ).
+	 * Generated from @assert ( 'http://gitlab.example.com/api/v3/', 'GitLab Private Token' ) == array( 'result' => 'success', 'message' => 'Connection Successful.' ).
 	 *
 	 * @covers RtWooGlAdmin::test_connection
 	 */
 	public function testTest_connection() {
 		$this->assertEquals(
-				array('result' => 'success', 'message' => 'Connection Successful.'), $this->object->test_connection('http://gitlab.example.com/api/v3/', 'Gitlab Private Token')
+				array('result' => 'success', 'message' => 'Connection Successful.'), $this->object->test_connection('http://gitlab.example.com/api/v3/', 'GitLab Private Token')
 		);
 	}
 
@@ -51,13 +51,13 @@ class RtWooGlAdminTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * Generated from @assert ( 'fggrg', 'Gitlab Private Token' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint URL is invalid.' ).
+	 * Generated from @assert ( 'fggrg', 'GitLab Private Token' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint URL is invalid.' ).
 	 *
 	 * @covers RtWooGlAdmin::test_connection
 	 */
 	public function testTest_connection3() {
 		$this->assertEquals(
-				array('result' => 'error', 'message' => 'Connection Failed. API Endpoint URL is invalid.'), $this->object->test_connection('fggrg', 'Gitlab Private Token')
+				array('result' => 'error', 'message' => 'Connection Failed. API Endpoint URL is invalid.'), $this->object->test_connection('fggrg', 'GitLab Private Token')
 		);
 	}
 
@@ -73,13 +73,13 @@ class RtWooGlAdminTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * Generated from @assert ( 'http://google.com', 'Gitlab Private Token' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' ).
+	 * Generated from @assert ( 'http://google.com', 'GitLab Private Token' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' ).
 	 *
 	 * @covers RtWooGlAdmin::test_connection
 	 */
 	public function testTest_connection5() {
 		$this->assertEquals(
-				array('result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.'), $this->object->test_connection('http://google.com', 'Gitlab Private Token')
+				array('result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.'), $this->object->test_connection('http://google.com', 'GitLab Private Token')
 		);
 	}
 

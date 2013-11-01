@@ -74,12 +74,12 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 			if ( $response['result'] == 'success' ) {
 				$rtWooGLUser = $response['body'];
 			} else {
-				$message = 'Gitlab Credentials could not be sent via rtWooGitlab for the Order #'.$order->id.':<br />
+				$message = 'GitLab Credentials could not be sent via WooCommerce GitLab for the Order #'.$order->id.':<br />
 					User: '.$order->billing_first_name.' '.$order->billing_last_name.'<br />
 					Email: '.$order->billing_email.'<br />
 					Cause: '.$response['message'];
 
-				rtwoogl_mail( '[rtWooGitlab] IMPORTANT - Unexpected Behavior', $message );
+				rtwoogl_mail( '[WooCommerce GitLab] IMPORTANT - Unexpected Behavior', $message );
 				return;
 			}
 			$rtWooGLUserStatus         = get_post_meta( $order->id, '_rtwoogl_user', true );
@@ -152,12 +152,12 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 						update_post_meta( $orderID, '_rtwoogl_user_pwd', $password );
 						$rtWooGLUser = $response['body'];
 					} else {
-						$message = 'User Creation has failed via rtWooGitlab for the Order #'.$orderID.'. User Details which failed are as follows:<br />
+						$message = 'User Creation has failed via WooCommerce GitLab for the Order #'.$orderID.'. User Details which failed are as follows:<br />
 							Email: '.$email.'<br />
 							Username: '.$username.'<br />
 							Cause: '.$response['message'];
 
-						rtwoogl_mail( '[rtWooGitlab] IMPORTANT - Unexpected Behavior', $message );
+						rtwoogl_mail( '[WooCommerce GitLab] IMPORTANT - Unexpected Behavior', $message );
 					}
 				}
 			}
@@ -194,29 +194,29 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 				if ( $response['result'] == 'success' ) {
 					$projectDetails = $response['body'];
 				} else {
-					$message = 'User could not be added to the project via rtWooGitlab for the Product - '.$product['name'].'. Details which failed ara as follows:<br />
+					$message = 'User could not be added to the project via WooCommerce GitLab for the Product - '.$product['name'].'. Details which failed are as follows:<br />
 						Order: #'.$order->id.'<br />
 						Email: '.$rtWooGLUser->email.'<br />
 						Username: '.$rtWooGLUser->username.'<br />
 						Name: '.$rtWooGLUser->name.'<br /><br />
 						Cause: Could not fetch details for the project. <br />'.$response['message'];
-					$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
+					$subject = '[WooCommerce GitLab] IMPORTANT - Unexpected Behavior';
 					continue;
 				}
 				$response = $rtGitlabClient->add_user_to_project( $rtWooGLUser->id, $project_id, $accessLevel );
 				if ( $response['result'] == 'error' ) {
-					$message = 'User could not be added to Project '.$projectDetails->name_with_namespace.' (<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$order->id.'. User Details which failed are as follows:<br />
+					$message = 'User could not be added to Project '.$projectDetails->name_with_namespace.' (<a href="'.$projectDetails->web_url.'">here</a>) via WooCommerce GitLab for the Order #'.$order->id.'. User Details which failed are as follows:<br />
 						Email: '.$rtWooGLUser->email.'<br />
 						Username: '.$rtWooGLUser->username.'<br />
 						Name: '.$rtWooGLUser->name.'<br /><br />
 						Cause: '.$response['message'];
-					$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
+					$subject = '[WooCommerce GitLab] IMPORTANT - Unexpected Behavior';
 				} else {
 					$projectMemberDetails = $response['body'];
 					$message = 'New User is added to the project.<br />
 						Project: '.$projectDetails->name_with_namespace.' (<a href="'.$projectDetails->web_url.'">here</a>)<br />
 						User: '.$projectMemberDetails->name.'('.$projectMemberDetails->username.')';
-					$subject = '[rtWooGitlab] New User added to Gitlab Project';
+					$subject = '[rtWooGitlab] New User added to GitLab Project';
 				}
 				rtwoogl_mail( $subject, $message );
 			}
@@ -261,30 +261,30 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 				if ( $response['result'] == 'success' ) {
 					$projectDetails = $response['body'];
 				} else {
-					$message = 'User could not be removed from the project via rtWooGitlab for the Product - '.$product['name'].'. Details which failed are as follows:<br />
+					$message = 'User could not be removed from the project via WooCommerce GitLab for the Product - '.$product['name'].'. Details which failed are as follows:<br />
 						Order: #'.$order->id.'<br />
 						Email: '.$rtWooGLUser->email.'<br />
 						Username: '.$rtWooGLUser->username.'<br />
 						Name: '.$rtWooGLUser->name.'<br /><br />
 						Cause: Could not fetch details for the project. <br />'.$response['message'];
-					$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
+					$subject = '[WooCommerce GitLab] IMPORTANT - Unexpected Behavior';
 					rtwoogl_mail( $subject, $message );
 					continue;
 				}
 				$response = $rtGitlabClient->remove_user_from_project( $rtWooGLUser->id, $project_id );
 				if ( $response['result'] == 'error' ) {
-					$message = 'User could not be removed/alreadey removed from Project '.$projectDetails->name_with_namespace.' (<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$order->id.'. User Details which failed are as follows:<br />
+					$message = 'User could not be removed/alreadey removed from Project '.$projectDetails->name_with_namespace.' (<a href="'.$projectDetails->web_url.'">here</a>) via WooCommerce GitLab for the Order #'.$order->id.'. User Details which failed are as follows:<br />
 						Email: '.$rtWooGLUser->email.'<br />
 						Username: '.$rtWooGLUser->username.'<br />
 						Name: '.$rtWooGLUser->name.'<br /><br />
 						Cause: '.$response['message'];
-					$subject = '[rtWooGitlab] IMPORTANT - Unexpected Behavior';
+					$subject = '[WooCommerce GitLab] IMPORTANT - Unexpected Behavior';
 				} else {
-					$message = 'User is removed successfully from Project '.$projectDetails->name_with_namespace.' (<a href="'.$projectDetails->web_url.'">here</a>) via rtWooGitlab for the Order #'.$order->id.'. User Details which failed are as follows:<br />
+					$message = 'User is removed successfully from Project '.$projectDetails->name_with_namespace.' (<a href="'.$projectDetails->web_url.'">here</a>) via WooCommerce GitLab for the Order #'.$order->id.'. User Details which failed are as follows:<br />
 						Email: '.$rtWooGLUser->email.'<br />
 						Username: '.$rtWooGLUser->username.'<br />
 						Name: '.$rtWooGLUser->name;
-					$subject = '[rtWooGitlab] User removed from Gitlab Project';
+					$subject = '[WooCommerce GitLab] User removed from GitLab Project';
 				}
 				rtwoogl_mail( $subject, $message );
 			}

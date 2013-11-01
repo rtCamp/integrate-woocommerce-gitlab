@@ -26,4 +26,9 @@ jQuery(document).ready(function($) {
 			});
 		});
 	}
+
+	$('#rtwoogl_api_endpoint').attr( 'placeholder', 'e.g., http://gitlab.example.com/api/v3/' );
+	$('#rtwoogl_private_token').attr( 'placeholder', 'GitLab Private Token' );
+	$('#rtwoogl_forgot_password_link').attr( 'placeholder', 'http://gitlab.example.com/forgot_password' );
+	$('#rtwoogl_admin_email').attr( 'placeholder', 'admin@example.com' );
 });

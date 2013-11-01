@@ -17,12 +17,27 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 		public $error_message;
 
 		public function __construct() {
+			$this->activation_check();
 			add_action( 'admin_enqueue_scripts', array( $this, 'load_scripts' ) );
 			$this->init_gitlab_client();
 			$this->settings();
 			$this->add_product_metabox();
 			add_action( 'wp_ajax_rtwoogl_test_connection', array( $this, 'test_connection_wrapper' ) );
 		}
+
+		function activation_check() {
+			$version = get_site_option( 'RT_WOO_GITLAB_VERSION', '' );
+			if ( empty( $version ) ) {
+				add_action( 'admin_notices', array( $this, 'first_time_activation_notice' ) );
+				update_site_option( 'RT_WOO_GITLAB_VERSION', RT_WOO_GL_VERSION );
+			}
+		}
+
+		function first_time_activation_notice() { ?>
+			<div class="updated">
+				<p><?php _e( 'Welcome to WooCommerce GitLab. Please click <a href="'. admin_url('admin.php?page=woocommerce_settings&tab=rtwoogl') .'">here</a> to configure GitLab Settings.' ); ?></p>
+			</div>
+		<?php }
 
 		function load_scripts() {
 			wp_enqueue_script( 'rtwoogl_script_admin', RT_WOO_GL_URL . 'assets/javascripts/admin.js', array( 'jquery' ), RT_WOO_GL_VERSION );
@@ -46,11 +61,11 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 
 		/**
 		 * Test Cases - Useful in Automated Testing via PHPUnit
-		 * @assert ( 'http://gitlab.example.com/api/v3/', 'Gitlab Private Token' ) == array( 'result' => 'success', 'message' => 'Connection Successful.' )
+		 * @assert ( 'http://gitlab.example.com/api/v3/', 'GitLab Private Token' ) == array( 'result' => 'success', 'message' => 'Connection Successful.' )
 		 * @assert ( '', '' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint/Token is missing.' )
-		 * @assert ( 'fggrg', 'Gitlab Private Token' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint URL is invalid.' )
+		 * @assert ( 'fggrg', 'GitLab Private Token' ) == array( 'result' => 'error', 'message' => 'Connection Failed. API Endpoint URL is invalid.' )
 		 * @assert ( 'http://gitlab.example.com/api/v3/', 'avdgvdsg' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
-		 * @assert ( 'http://google.com', 'Gitlab Private Token' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
+		 * @assert ( 'http://google.com', 'GitLab Private Token' ) == array( 'result' => 'error', 'message' => 'Connection Failed. Invalid API Endpoint/Token. Please verify.' )
 		 *
 		 * @param type $endPoint
 		 * @param type $token
@@ -88,6 +103,23 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 		function settings() {
 			global $rtWooGLSettings;
 			$rtWooGLSettings = new RtWooGlSettings();
+			add_action( 'admin_notices', array( $this, 'gitlab_configure_notice' ) );
+		}
+
+		function gitlab_configure_notice() {
+			$endPoint       = get_option( 'rtwoogl_api_endpoint', '' );
+			$privateToken   = get_option( 'rtwoogl_private_token', '' );
+			if ( empty( $endPoint ) || empty( $privateToken ) ) { ?>
+				<div class="error">
+					<p><?php _e( '<b>WooCommerce GitLab</b> : GitLab Endpoint or Private Token is not set properly. Please check <a href="'. admin_url( 'admin.php?page=woocommerce_settings&tab=rtwoogl' ) .'">here</a>.' ); ?></p>
+			    </div>
+			<?php } else {
+				$error = get_site_option( 'rtwoogl_settings_error' );
+				if ( !empty( $error ) ) {
+					echo $error;
+					update_site_option( 'rtwoogl_settings_error', '' );
+				}
+			}
 		}
 
 		function add_product_metabox() {
@@ -97,7 +129,7 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 		}
 
 		function add_gitlab_project_meta() {
-			add_meta_box( 'rtwoogl_project_mapping', __( 'Gitlab Project', 'rtwoo-gitlab' ), array( $this, 'form_gitlab_project_meta' ), 'product', 'side', 'high' );
+			add_meta_box( 'rtwoogl_project_mapping', __( 'GitLab Project', 'rtwoo-gitlab' ), array( $this, 'form_gitlab_project_meta' ), 'product', 'side', 'high' );
 		}
 
 		function form_gitlab_project_meta( $post ) {
@@ -110,7 +142,7 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 			}
 			$project_id = get_post_meta( $post->ID, '_rtwoogl_project', true );
 			wp_nonce_field( plugin_basename( __FILE__ ), '_rtwoogl_noncename' ); ?>
-				<label for="_rtwoogl_project" class="selectit"><?php _e( 'Gitlab Project', 'rtwoo-gitlab' ); ?></label>
+				<label for="_rtwoogl_project" class="selectit"><?php _e( 'GitLab Project', 'rtwoo-gitlab' ); ?></label>
 				<select id="_rtwoogl_project" name="_rtwoogl_project">
 					<option value=""><?php _e( 'N/A', 'rtwoo-gitlab' ); ?></option>
 					<?php foreach ( $projects as $project ) { ?>
@@ -119,10 +151,10 @@ if ( !class_exists( 'RtWooGlAdmin' ) ) {
 				</select>
 				<?php if ( $response['result'] == 'error' ) { ?>
 					<br /><br />
-					<span><?php _e('Project list is empty.<br />Gitlab Connection is failed.<br />We suggest you to check the Gitlab API Endpoint & Gitlab Private Token from '); ?><a target="_blank" href="<?php echo admin_url('admin.php?page=woocommerce_settings&tab=rtwoogl'); ?>">here</a></span>
+					<span><?php _e('GitLab Connection is failed.<br />Please check the GitLab Settings from '); ?><a target="_blank" href="<?php echo admin_url('admin.php?page=woocommerce_settings&tab=rtwoogl'); ?>">here</a></span>
 				<?php } else if ( empty( $projects ) ) { ?>
 					<br /><br />
-					<span><?php _e('Project list is empty. There are no project repositeries on your Gitlab Server.'); ?></span>
+					<span><?php _e('Project list is empty. There are no project repositeries on your GitLab Server.'); ?></span>
 				<?php } ?>
 		<?php }
 
