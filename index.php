@@ -104,7 +104,7 @@ function rtwoogl_plugin_links($links, $file) {
 	$base = plugin_basename(__FILE__);
 	if ($file == $base) {
 		$links[] = '<a href=" https://rtcamp.com/store/woocommerce-gitlab#tab-faq">' . __('FAQs') . '</a>';
-		$links[] = '<a href="https://rtcamp.com">' . __('Support') . '</a>';
+		$links[] = '<a href=" https://rtcamp.com/support/forum/woocommerce-gitlab-addon-support/">' . __('Support') . '</a>';
 	}
 	return $links;
 }
