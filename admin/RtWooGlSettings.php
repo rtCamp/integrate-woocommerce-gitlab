@@ -109,7 +109,7 @@ if ( !class_exists( 'RtWooGlSettings' ) ) {
 			global $woocommerce_settings;
 			woocommerce_admin_fields( $woocommerce_settings['rtwoogl'] );
 			?>
-				<div><a href="#" id="rtwoogl_test_connection" class="button" style="margin-top: 15px;">Test Connection</a></div>
+				<div><a href="#" id="rtwoogl_test_connection" class="button" style="margin-top: 15px;"><?php _e( 'Test Connection' ); ?></a></div>
 			<?php
 		}
 	}
