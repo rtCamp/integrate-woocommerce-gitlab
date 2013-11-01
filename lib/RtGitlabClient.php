@@ -60,7 +60,7 @@ if ( !class_exists( 'RtGitlabClient' ) ) {
 				$user = $result['body'];
 				if( $user->is_admin != true ) {
 					$result['result'] = 'error';
-					$result['message'] = 'This Private Token is not of an admin account';
+					$result['message'] = 'This private token is not of an administration account';
 				}
 			}
 			return $result;
