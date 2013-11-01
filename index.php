@@ -3,7 +3,7 @@
   Plugin Name: WooCommerce GitLab Add-on
   Plugin URI: https://rtcamp.com/store/woocommerce-gitlab
   Description: WooCommerce GitLab Add-on provides a simple way to connect GitLab to WooCommerce.
-  Version: 2.0.0
+  Version: 1.1.0
   Author: rtCamp
   Author URI: https://rtcamp.com
   Text Domain: rtwoo-gitlab
@@ -17,7 +17,7 @@
  */
 
 if ( !defined( 'RT_WOO_GL_VERSION' ) ) {
-	define( 'RT_WOO_GL_VERSION', '2.0.0' );
+	define( 'RT_WOO_GL_VERSION', '1.1.0' );
 }
 if ( !defined( 'RT_WOO_GL_PATH' ) ) {
 	define( 'RT_WOO_GL_PATH', plugin_dir_path( __FILE__ ) );
