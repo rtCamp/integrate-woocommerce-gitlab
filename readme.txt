@@ -1,4 +1,4 @@
-== Integrate Woocommerce Gitlab ==
+=== Integrate Woocommerce Gitlab ===
 
 Contributors: [rtcamp](http://profiles.wordpress.org/rtcamp), [desaiuditd](http://profiles.wordpress.org/desaiuditd)
 Donate link: http://rtcamp.com/donate/
@@ -16,6 +16,7 @@ It provides a simple way to connect GitLab to WooCommerce.
 WooCommerce GitLab add-on provides a simple way to connect GitLab to WooCommerce. Customers will get access to source code repositories as a Guest, Reporter, Developer or Master right after buying your products.
 
 WooCommerce GitLab add-on allows you to provide repository access to customers for a particular product. It simply creates a new user (if user doesn’t exist) and provides access to code repository.
+
 
 === Features ===
 
