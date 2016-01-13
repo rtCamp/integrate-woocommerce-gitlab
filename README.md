@@ -1,10 +1,15 @@
 ## Integrate Woocommerce Gitlab ##
 
 Contributors: [rtcamp](http://profiles.wordpress.org/rtcamp), [desaiuditd](http://profiles.wordpress.org/desaiuditd)
+
 Donate link: http://rtcamp.com/donate/
+
 Tags: WooCommerce, git, WordPress, gitlab
+
 License: GPLv2 or later
+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
+
 Requires at least: WordPress 3.0
 Tested up to: 4.4
 Stable tag: 1.0
