@@ -1,6 +1,6 @@
 <?php
 /*
-  Plugin Name: WooCommerce GitLab Add-on
+  Plugin Name: Integrate WooCommerce Gitlab
   Plugin URI: https://rtcamp.com/store/woocommerce-gitlab
   Description: WooCommerce GitLab Add-on provides a simple way to connect GitLab to WooCommerce.
   Version: 1.1.0
