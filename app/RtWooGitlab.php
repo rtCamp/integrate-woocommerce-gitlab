@@ -17,19 +17,9 @@ if ( !class_exists( 'RtWooGitlab' ) ) {
 		public $templateURL;
 
 		public function __construct() {
-
-			$this->check_for_updates();
-
 			// Plugin Init
 			add_action( 'init', array( $this, 'admin_init' ), 5 );
 			add_action( 'init', array( $this, 'init' ), 6 );
-		}
-
-		function check_for_updates() {
-			if (!class_exists('rtPluginUpdateChecker')) {
-				include RT_WOO_GL_PATH . 'helper/rtPluginUpdateChecker.php';
-			}
-			new rtPluginUpdateChecker( 'https://rtcamp.com/plugin-update-checker/', RT_WOO_GL_PATH . 'index.php', 'rtwoo-gitlab', 12 );
 		}
 
 		function admin_init() {
